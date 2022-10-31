@@ -1,0 +1,6 @@
+rocketDryMass 24.00456                          #kg, rocket mass after MECO
+rocketDragCoefficient 0.44437                   #Cd of just the rocket body
+rocketDiameter 0.1524                           #meters
+paddleLength 0.1                                #meters
+paddleWidth 0.1                                 #meters
+launchPadHeight 1293                            #meters, above sea level
