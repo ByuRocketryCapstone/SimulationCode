@@ -1,5 +1,8 @@
 #include "Simulator.h"
 
+// Constructor for Simulator objects. Takes in initial height, velocity, inclination angle, and
+// constant step size to initialize the simulation. Also reads in characteristics of the rocket
+// from the parameters file.
 Simulator::Simulator(double h0, double V0, double theta0, double stepSize)
 {
     ifstream reader(PARAMETERS_FILE);
@@ -18,6 +21,7 @@ Simulator::Simulator(double h0, double V0, double theta0, double stepSize)
 }
 
 
+// Performs an energy balance for one height step. Output values are pass-by-reference parameters.
 void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double alpha)
 {   
     double totalEnergy = m_r*g*h + 0.5*m_r*V*V; //calc total energy at current step
@@ -47,14 +51,16 @@ void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double al
 }
 
 
-//
+// Calculate air density as a function of height. 
+// Data from https://www.engineeringtoolbox.com/air-altitude-density-volume-d_195.html
 double Simulator::getAirDensity(double h)
 {
     return 1.2 - 0.00012*(h+launchHeight); //kg/m^3
 }
 
 
-//alpha is the paddle deployment in degrees
+// Calculates frontal area and coefficient of drag of the paddles as a function of the 
+// deployment angle. alpha is the paddle deployment in degrees
 double Simulator::getPaddleDrag(double alpha)
 {
     double Cd_p = 0;
@@ -64,6 +70,8 @@ double Simulator::getPaddleDrag(double alpha)
 }
 
 
+// Reads in parameters of the rocket from the parameters file. Additional parameters can be
+// added by adding to the if/else block.
 void Simulator::populateParameters(ifstream& reader)
 {
     string line;

@@ -12,6 +12,7 @@ using namespace std::chrono;
 void simulate(Simulator& currSim);
 double controlSchemeUpdate(double h, double V, double a, double theta);
 
+
 int main()
 {
     Simulator currSim(762.9144, 284.57, 0, 0.05);
@@ -19,7 +20,7 @@ int main()
     auto start = high_resolution_clock::now();
 
     simulate(currSim);
-    
+
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
     cout << "time: " << duration.count() << endl;
@@ -27,12 +28,12 @@ int main()
     return 0;
 }
 
+
 void simulate(Simulator& currSim)
 {
     double currH, currV, currA;
     double alpha = 0;
     do
-    //for (int i = 0; i < 100000; i++)
     {
         currSim.calcNextStep(currH, currV, currA, alpha);
         alpha = controlSchemeUpdate(currH, currV, currA, 0);
