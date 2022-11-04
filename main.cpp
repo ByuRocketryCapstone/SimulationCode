@@ -23,7 +23,7 @@ int main()
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
-    cout << "time: " << duration.count() << endl;
+    //cout << "time: " << duration.count() << endl;
 
     return 0;
 }
@@ -39,7 +39,7 @@ void simulate(Simulator& currSim)
         alpha = controlSchemeUpdate(currH, currV, currA, 0);
     } while(currV > 0.1);
     
-    cout << "h: " << currH << endl;
+    //cout << "h: " << currH << endl;
     
 }
 

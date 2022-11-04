@@ -18,6 +18,13 @@ Simulator::Simulator(double h0, double V0, double theta0, double stepSize)
     theta = theta0;
 
     heightStep = stepSize;  //m
+    currTime = 0;
+}
+
+
+Simulator::~Simulator()
+{
+    writeRecord();
 }
 
 
@@ -43,6 +50,12 @@ void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double al
 
     double timeStep = heightStep/V;
     double accel = (V - V_prev) / timeStep;
+    currTime += timeStep;
+
+    timeVals.push_back(currTime);
+    heightVals.push_back(h);
+    velocityVals.push_back(V);
+    alphaVals.push_back(alpha);
 
     hOut = h;
     VOut = V;
@@ -90,4 +103,44 @@ void Simulator::populateParameters(ifstream& reader)
     } 
     A_r = M_PI*(D_r/2)*(D_r/2);
     g = 9.80665;
+}
+
+
+void Simulator::writeRecord()
+{
+    
+    string filename = RECORDS_DIRECTORY + to_string(time(0)) + ".txt";
+    ofstream writer(filename);
+    if(!writer.is_open())
+    {
+        cout << "Output file did not open in Simulator::writeRecord()." << endl;
+        return;
+    }
+
+    if(!(timeVals.size() == heightVals.size() 
+        && timeVals.size() == velocityVals.size()
+        && timeVals.size() == alphaVals.size()))
+    {
+        cout << "Vectors not of same size in Simulator::writeRecord()." << endl;
+        cout << "Time: " << timeVals.size() << endl;
+        cout << "Height: " << heightVals.size() << endl;
+        cout << "Vel: " << velocityVals.size() << endl;
+        cout << "Angle: " << alphaVals.size() << endl;
+        return;
+    }
+
+    time_t tt;
+    struct tm * ti;
+    time(&tt);
+    ti = localtime(&tt);
+
+
+    writer << "Simulation created and run on: " << endl;
+    writer << asctime(ti) << endl << endl;
+    writer << "Time (s), Height (m), Velocity (m/s), Deployment Angle (radians)" << endl;
+    for(int i = 0; i < timeVals.size(); i++)
+    {
+        writer << timeVals.at(i) << ", " << heightVals.at(i) << ", " << velocityVals.at(i) << ", "
+            << alphaVals.at(i) << endl;
+    }
 }
