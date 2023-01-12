@@ -25,9 +25,11 @@ using namespace std;
 class Simulator
 {
     public:
-    Simulator(double h0, double V0, double theta, double stepSize);
+    Simulator(double h0, double V0, double theta);
     ~Simulator();
     void calcNextStep(double& hOut, double& VOut, double& aOut, double alpha);
+    double getApogee();
+    void writeRecord(string fileSpec = "");
 
     private:
     const string PARAMETERS_FILE = "parameters.txt";
@@ -36,13 +38,13 @@ class Simulator
     double h, V, a, theta, currTime;
     double m_r, Cd_r, D_r, A_r, L_p, W_p, g, launchHeight;
     double heightStep;
-    vector<double> timeVals, heightVals, velocityVals, alphaVals;
+    
+    vector<double> timeVals, heightVals, velocityVals, accelVals, alphaVals;
 
     double getAirDensity(double h);
     double getPaddleDrag(double alpha);
 
     void populateParameters(ifstream& reader);
-    void writeRecord();
     
 
 };

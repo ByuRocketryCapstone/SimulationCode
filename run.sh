@@ -1,2 +1,2 @@
-g++ -Wall *.cpp -o run
+g++ *.cpp -o run
 ./run
