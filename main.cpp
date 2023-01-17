@@ -1,8 +1,10 @@
 // Toggles which mode the simulator is in. To test the control algorithm, set the
-// TEST_CONTROL_SCHEME variable to true. To generate optimal trajectories for the PID
-// controller, set TEST_CONTROL_SCHEME to false.
-#define TEST_CONTROL_SCHEME false
-#define GENERATE_TRAJECTORIES !TEST_CONTROL_SCHEME
+// TEST_CONTROL_SCHEME variable to true. To generate optimal reference trajectories for the PID
+// controller, set GENERATE_TRAJECTORIES to true. To tune gains for the PID controller with the
+// optimizer, set TUNE_CONTROLLER_GAINS to true. Set the other two options to false.
+#define TEST_CONTROL_SCHEME true
+#define GENERATE_TRAJECTORIES false
+#define TUNE_CONTROLLER_GAINS false
 
 #include <iostream>
 #include <string>
@@ -75,11 +77,11 @@ double controlSchemeUpdate(double h, double V, double a, double theta)
 
 int main()
 {
-    // Generator generator;
-    // generator.generateTrajectories();
+    Generator generator;
+    generator.generateTrajectories();
 
-    GainOptimizer optimizer;
-    optimizer.evaluate();
+    // GainOptimizer optimizer;
+    // optimizer.evaluate();
 
     return 0;
 }

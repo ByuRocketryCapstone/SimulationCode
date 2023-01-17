@@ -19,6 +19,12 @@ Simulator::Simulator(double h0, double V0, double theta0)
 
     heightStep = 0.05;  //m
     currTime = 0;
+
+    timeVals.push_back(0);
+    heightVals.push_back(h);
+    velocityVals.push_back(V);
+    accelVals.push_back(-g);
+    alphaVals.push_back(0);
 }
 
 
@@ -140,6 +146,12 @@ void Simulator::writeRecord(string fileSpec)
     ti = localtime(&tt);
 
     vector<double> spacedTime, spacedHeight, spacedVelocity, spacedAccel, spacedAlpha;
+    spacedTime.push_back(timeVals.at(0));
+    spacedHeight.push_back(heightVals.at(0));
+    spacedVelocity.push_back(velocityVals.at(0));
+    spacedAccel.push_back(accelVals.at(0));
+    spacedAlpha.push_back(alphaVals.at(0));
+    
     double lastTime = timeVals.at(0);
     for(int i = 0; i < timeVals.size(); i++)
     {
