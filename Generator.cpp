@@ -14,12 +14,14 @@ void Generator::generateTrajectories()
     vector<double> initialVelocities, initialHeights;
     populateInitialConditions(seedVelocity, seedHeight, initialVelocities, initialHeights);
     string filename = "";
+    int simNum = 0;
 
     for (int i = 0; i < initialHeights.size(); i++)
     {
         for(int j = 0; j < initialVelocities.size(); j++)
         {
-            filename = "datafile" + to_string(i+j) + ".txt";
+            simNum++;
+            filename = "datafile" + to_string(simNum) + ".txt";
             Simulator* currSim;
             double finalApogee = 0;     //m
             double deploymentAngle = 10 * (M_PI/180);   //radians
@@ -47,14 +49,15 @@ void Generator::generateTrajectories()
                 if (abs(previousAngle - deploymentAngle) > 0.0001) keepLooping = true;
             }
             simulations.push_back(currSim);
-            cout << "Final Angle: " << deploymentAngle * (180/M_PI) << endl;
-            cout << "Num Runs: " << numRuns << endl;
+            currSim->writeRecord("SimRecords/" + filename);
+            // cout << simNum << ": " << "Final Angle: " << deploymentAngle * (180/M_PI) << endl;
+            // cout << "Num Runs: " << numRuns << endl;
         }
     }
-    for (int i = 0; i < simulations.size(); i++)
-    {
-        simulations.at(i)->writeRecord("SimRecords/" + filename);
-    }
+    // for (int i = 0; i < simulations.size(); i++)
+    // {
+    //     simulations.at(i)->writeRecord("SimRecords/" + filename);
+    // }
 }
 
 
@@ -83,8 +86,8 @@ void Generator::populateInitialConditions(double seedVel, double seedHeight,
     velocities.push_back(seedVel);
 
     const int NUM_STEPS = 0;
-    const int HEIGHT_STEP = 20;
-    const int VELOCITY_STEP = 5;
+    const int HEIGHT_STEP = 40;     //m
+    const int VELOCITY_STEP = 10;   //m/s
 
     for(int i = 1; i <= NUM_STEPS; i++)
     {

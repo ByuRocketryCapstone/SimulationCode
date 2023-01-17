@@ -110,7 +110,6 @@ void Simulator::populateParameters(ifstream& reader)
 
 void Simulator::writeRecord(string fileSpec)
 {
-    
     string filename;
     if (fileSpec == "") filename = RECORDS_DIRECTORY + to_string(time(0)) + ".txt";
     else filename = fileSpec;

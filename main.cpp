@@ -5,6 +5,8 @@
 #define GENERATE_TRAJECTORIES !TEST_CONTROL_SCHEME
 
 #include <iostream>
+#include <string>
+#include <sstream>
 using namespace std;
 
 #if TEST_CONTROL_SCHEME
@@ -68,11 +70,16 @@ double controlSchemeUpdate(double h, double V, double a, double theta)
 #if GENERATE_TRAJECTORIES
 
 #include "Generator.h"
+#include "Controller.h"
+#include "GainOptimizer.h"
 
 int main()
 {
-    Generator generator;
-    generator.generateTrajectories();
+    // Generator generator;
+    // generator.generateTrajectories();
+
+    GainOptimizer optimizer;
+    optimizer.evaluate();
 
     return 0;
 }
