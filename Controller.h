@@ -1,6 +1,14 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
+/*
+File: Controller.h
+Author: Gerritt Graham and Jacob Hansen
+Description: Class implementing the PID controller to control the rocket in flight. This controller uses
+a reference trajectory created by the Generator class to calculate error values, and uses a simple PID
+formula to calculate a paddle deployment angle at each time step.
+*/
+
 #include <vector>
 #include <string>
 #include <fstream>

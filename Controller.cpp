@@ -2,10 +2,12 @@
 
 Controller::Controller(double kp, double ki, double kd)
 {
+    // Set values of the PID constants
     this->kp = kp;
     this->ki = ki;
     this->kd = kd;
 
+    // Initialize paddle deployment angle values
     ref_alpha = 0;
     cmd_alpha = 0;
 
@@ -13,9 +15,11 @@ Controller::Controller(double kp, double ki, double kd)
 }
 
 
-void Controller::loadData(string datafile)
+// Loads data for the reference trajectory from the file specified by dataFile. 
+void Controller::loadData(string dataFile)
 {
-    ifstream reader(datafile);
+    // Open input file stream
+    ifstream reader(dataFile);
     if(!reader.is_open())
     {
         cout << "File failed to open in Controller::loadData()." << endl;
@@ -25,25 +29,20 @@ void Controller::loadData(string datafile)
     int headerSize = 5;
     for(int i = 0; i < headerSize; i++) getline(reader, line);  //skip header
 
+    // read each line of the data file
     while(getline(reader, line))
     {
-        vector<string> dataVals = split(line, ',');
+        vector<string> dataVals = split(line, ',');     //split line into individual values
         refTimes.push_back(stod(dataVals.at(0)));
         refHeights.push_back(stod(dataVals.at(1)));
         refVelocities.push_back(stod(dataVals.at(2)));
         refAccels.push_back(stod(dataVals.at(3)));
     }
-
-    // for(int i = 0; i < 10; i++)
-    // {
-    //     cout << refTime.at(i) << ", ";
-    //     cout << refHeight.at(i) << ", ";
-    //     cout << refVelocity.at(i) << ", ";
-    //     cout << refAccel.at(i) << endl;
-    // }
 }
 
 
+// Runs the PID algorithm to calculate a new paddle deployment angle. Input values are the 
+// current values of the rocket in real time, not the optimal reference values
 double Controller::calcAngle(double currTime, double currHeight, double currVelocity, double currAccel)
 { 
     ref_alpha = getCurrentAngle();
@@ -66,6 +65,8 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
 }
 
 
+// Helper function that splits a line into individual strings according to the specified 
+// delimiter character
 std::vector<std::string> Controller::split(const std::string& text, char delimiter)
 {                                                                                                                                                                                             
    std::vector<std::string> splits;                                                                                                                                                           
@@ -79,22 +80,25 @@ std::vector<std::string> Controller::split(const std::string& text, char delimit
 }
 
 
+// Ping the hardware to determine the actual angle that the paddles are currently deployed to
 double Controller::getCurrentAngle()
 {
-    return 0.0;
+    return 0.0; //FIXME: Implement this
 }
 
 
+// Find the closest reference time index to the specified time
 int Controller::findTimeIndex(double t)
 {
     for (int i = 0; i < refTimes.size(); i++)
     {
-        if(refTimes.at(i) > t) return t;
+        if(refTimes.at(i) > t) return i;  //return time index above the specified time value  
     }
     return -1;  //index was not found
 }
 
 
+// Calculate reference height at specified time using linear interpolation
 double Controller::getRefHeight(double t)
 {
     unsigned int upperBound = findTimeIndex(t);
@@ -107,6 +111,7 @@ double Controller::getRefHeight(double t)
 }
 
 
+// Calculate reference velocity at specified time using linear interpolation
 double Controller::getRefVelocity(double t)
 {
     unsigned int upperBound = findTimeIndex(t);
@@ -119,6 +124,7 @@ double Controller::getRefVelocity(double t)
 }
 
 
+// Calculate reference accleration at specified time using linear interpolation
 double Controller::getRefAccel(double t)
 {
     unsigned int upperBound = findTimeIndex(t);

@@ -1,6 +1,15 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+/*
+File: Generator.h
+Author: Gerritt Graham
+Description: Class that uses the Simulator class to generate an optimal reference trajectory for 
+the PID controller. This is a brute force solution that tries imposing a constant paddle deployment
+angle over the whole flight. The chosen angle is adjusted until the target apogee is reached, then flight
+information is recorded to be used as a reference by the PID controller.
+*/
+
 #include "Simulator.h"
 #include <iostream>
 #include <vector>
@@ -14,13 +23,10 @@ class Generator
     Generator();
     void generateTrajectories();
     double simulate(Simulator* currSim, double deploymentAngle);
-    void controlPaddles();
 
     private:
     vector<Simulator*> simulations;
-    double desiredApogee = 3048; // m
-    double tolerance = 0.001; //0.1 percent
-    double maxAngle = 70 * (M_PI/180);  //radians
+    double desiredApogee, tolerance, maxAngle, seedHeight, seedVelocity;
     void populateInitialConditions(double, double, vector<double>&, vector<double>&);
     void adjustAngle(double& deploymentAngle, double& angleStep, double finalApogee);
 

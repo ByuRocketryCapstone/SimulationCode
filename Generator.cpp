@@ -2,18 +2,25 @@
 
 Generator::Generator()
 {
-    // do we need code here?
+    desiredApogee = 3048;   // m
+    tolerance = 0.001;      //0.1 percent
+    maxAngle = 70 * (M_PI/180);     //radians
+
+    // starting height and velocity values at MECO obtained from OpenRocket
+    seedVelocity = 284.57;        //m/s
+    seedHeight = 762.9144;          //m
 }
 
 
+// Brute force solution to generate optimal reference trajectories. A seed height and velocity at 
+// main engine cutoff (MECO) is obtained from OpenRocket, and is used to generate a suite of height
+// and velocity combinations that could potentially be seen in flight. For each combination of height
+// and velocity, and constant paddle angle is found that results in the desired apogee
 void Generator::generateTrajectories()
 {
-    // starting height and velocity values at MECO obtained from OpenRocket
-    double seedVelocity = 284.57;        //m/s
-    double seedHeight = 762.9144;          //m
     vector<double> initialVelocities, initialHeights;
     populateInitialConditions(seedVelocity, seedHeight, initialVelocities, initialHeights);
-    string filename = "";
+    string outputFilename = "";
     int simNum = 0;
 
     for (int i = 0; i < initialHeights.size(); i++)
@@ -21,7 +28,7 @@ void Generator::generateTrajectories()
         for(int j = 0; j < initialVelocities.size(); j++)
         {
             simNum++;
-            filename = "datafile" + to_string(simNum) + ".txt";
+            outputFilename = "datafile" + to_string(simNum) + ".txt";
             Simulator* currSim;
             double finalApogee = 0;     //m
             double deploymentAngle = 10 * (M_PI/180);   //radians
@@ -36,7 +43,7 @@ void Generator::generateTrajectories()
                 currSim = new Simulator(initialHeights.at(i), initialVelocities.at(j), 0);
                 finalApogee = simulate(currSim, deploymentAngle);
                 double previousAngle = deploymentAngle;
-                adjustAngle(deploymentAngle, angleStep, finalApogee);
+                adjustAngle(deploymentAngle, angleStep, finalApogee);   //FIXME: restrict speed of angle change
 
                 if (deploymentAngle > maxAngle || deploymentAngle < 0)
                 {
@@ -49,18 +56,14 @@ void Generator::generateTrajectories()
                 if (abs(previousAngle - deploymentAngle) > 0.0001) keepLooping = true;
             }
             simulations.push_back(currSim);
-            currSim->writeRecord("SimRecords/" + filename);
-            // cout << simNum << ": " << "Final Angle: " << deploymentAngle * (180/M_PI) << endl;
-            // cout << "Num Runs: " << numRuns << endl;
+            currSim->writeRecord("SimRecords/" + outputFilename);
         }
     }
-    // for (int i = 0; i < simulations.size(); i++)
-    // {
-    //     simulations.at(i)->writeRecord("SimRecords/" + filename);
-    // }
 }
 
 
+// Exectutes the simulation of the currSim argument at a specified paddle deployment angle
+// in radians
 double Generator::simulate(Simulator* currSim, double deploymentAngle)
 {
     double hOut, VOut, aOut;  
@@ -73,12 +76,7 @@ double Generator::simulate(Simulator* currSim, double deploymentAngle)
 }
 
 
-void Generator::controlPaddles()
-{
-
-}
-
-
+// Generate combinations of MECO heights and velocities using the given seed values
 void Generator::populateInitialConditions(double seedVel, double seedHeight, 
     vector<double>& velocities, vector<double>& heights)
 {
@@ -99,6 +97,8 @@ void Generator::populateInitialConditions(double seedVel, double seedHeight,
 }
 
 
+// Increase or decrease the selected deployment angle for the next simulation depending on the results
+// of the previous simulation. A variable angle step is used to reduce computation time
 void Generator::adjustAngle(double& deploymentAngle, double& angleStep, double finalApogee)
 {
     // adjust angle step based on how close the simulation is to the target

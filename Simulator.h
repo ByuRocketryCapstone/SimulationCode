@@ -8,7 +8,6 @@ Author: Gerritt Graham
 Description: Class containing logic to simulate unpowered rocket flight. Simulation starts with
 rocket height and velocity values at MECO, then performs an energy balance at discrete height
 steps until apogee. 
-
 */
 
 
