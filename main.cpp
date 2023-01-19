@@ -86,24 +86,23 @@ double controlSchemeUpdate(Controller& controller, double h, double V, double a,
 double randn()
 {
     const double e = 2.78128;
-    const double sigma = 1;
+    const double sigma = 3;
     const double mu = 0;
 
     double returnVal = 0;
     bool acceptVal = false;
 
-    // while(!acceptVal)
-    // {
-        double x = 1; //(rand() % 200 / 100.0) - 1;
-        double expTerm = -1*pow((x - mu), 2) / (2*pow(sigma, 2));
-        double prob = 1/(sigma*sqrt(2*M_PI))*expTerm;
-        cout << prob << endl;
+    while(!acceptVal)
+    {
+        double x = (rand() % 200 / 100.0) - 1;
+        double expTerm = -0.5*pow((x-mu)/sigma, 2);
+        double prob = exp(expTerm)/(sigma*sqrt(2*M_PI));
         if (prob > rand() % 100 / 100.0)
         {
             acceptVal = true;
             returnVal = x;
         }
-    // }
+    }
     
     return returnVal;
 }
@@ -118,7 +117,7 @@ int main()
 
     for(int i = 0; i < 10; i++)
     {
-        randn();
+        cout << randn() << endl;
     }
 
     return 0;

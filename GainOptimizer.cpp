@@ -71,13 +71,13 @@ Solution GainOptimizer::takeStep(Solution currSoln)
 {
     Solution candidateSoln;
 
-    double kpStep = 0;
-    double kiStep = 0;
-    double kdStep = 0;
+    double kpStep = (rand() % 1000 / 500.0) - 1;
+    double kiStep = (rand() % 1000 / 500.0) - 1;
+    double kdStep = (rand() % 1000 / 500.0) - 1;
 
-
-
-    return candidateSoln;
+    candidateSoln.kp = currSoln.kp + kpStep;
+    candidateSoln.ki = currSoln.ki + kiStep;
+    candidateSoln.kd = currSoln.kd + kdStep;
 }
 
 
@@ -93,27 +93,3 @@ void GainOptimizer::enforceBounds(Solution& candidateSoln)
     else if (candidateSoln.kd > bounds.at(5)) candidateSoln.kd = bounds.at(5);
 }
 
-
-double GainOptimizer::randn()
-{
-    const double e = 2.78128;
-    const double sigma = 2;
-    const double mu = 0;
-
-    double returnVal = 0;
-    bool acceptVal = false;
-
-    while(!acceptVal)
-    {
-        double x = (rand() % 200 / 100.0) - 1;
-        double expTerm = -1*pow((x - mu), 2) / (2*pow(sigma, 2));
-        double prob = 1/(sigma*sqrt(2*M_PI))*expTerm;
-        if (prob > rand() % 100 / 100.0)
-        {
-            acceptVal = true;
-            returnVal = x;
-        }
-    }
-
-    return returnVal;
-}
