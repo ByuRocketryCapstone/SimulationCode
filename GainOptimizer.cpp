@@ -8,8 +8,7 @@ GainOptimizer::GainOptimizer()
     numIterations = 400;
 
     //set bounds
-    bounds.push_back(0);
-    bounds.push_back(21);
+    bounds = {0, 20, 0, 20, 0, 20};
 
     //seed random number generator with current time
     srand(time(0));
@@ -19,12 +18,11 @@ GainOptimizer::GainOptimizer()
 void GainOptimizer::evaluate()
 {
     //generate and evaluate random starting solution
-    bestSoln = rand() % int(bounds.at(1)); 
-    bestScore = objectiveFunction(bestSoln);
+    bestSoln.setGains(1,1,1);
+    bestSoln.setScore(objectiveFunction(bestSoln));
 
     //set starting point as current solution
-    currSoln = bestSoln;
-    currScore = bestScore;
+    currSoln.equals(bestSoln);
 
     //initialize temperature variable
     double currTemp = initialTemp;
@@ -32,44 +30,90 @@ void GainOptimizer::evaluate()
     for (int i = 0; i < numIterations; i++)
     {
         //take random step
-        double step = ((rand() % 3000 / 200.0) - 7.5);
-        double candidateSoln = currSoln + step;
+        Solution candidateSoln = takeStep(currSoln);
 
-        //enforce bounds
-        if(candidateSoln < bounds.at(0)) candidateSoln = bounds.at(0);
-        else if(candidateSoln > bounds.at(1)) candidateSoln = bounds.at(1);
+        //ensure solution is within bounds
+        enforceBounds(candidateSoln);
 
         //evaluate new candidate solution
-        double candidateScore = objectiveFunction(candidateSoln);
+        candidateSoln.setScore(objectiveFunction(candidateSoln));
         
         //update best if candidate solution is better
-        if(candidateScore < bestScore)
-        {
-            bestScore = candidateScore;
-            bestSoln = candidateSoln;
-        }
+        if(candidateSoln.score < bestSoln.score) bestSoln.equals(candidateSoln);
 
         //decrease temperature with linear annealing schedule
         currTemp -= initialTemp/numIterations;
 
         //calculate metropolis acceptance criteria
-        double diff = candidateScore - currScore;
+        double diff = candidateSoln.score - currSoln.score;
         double metropolisCriteria = exp(-diff/currTemp);
 
         //compare metropolis criteria to random value between 0 and 1 for acceptance
         //if diff is negative, solution is automatically accepted (represents better soln)
         if (diff < 0 || (rand() % 100) / 100.0 < metropolisCriteria)
         {
-            currSoln = candidateSoln;
-            currScore = candidateScore;
+            currSoln.equals(candidateSoln);
         }
     }
-    cout << "Best solution occurred at x = " << bestSoln << ", with a value of " << bestScore << endl;
+    
 }
 
 
-double GainOptimizer::objectiveFunction(double solution)
+double GainOptimizer::objectiveFunction(Solution soln)
 {
-    double result = 0.01*solution*solution*sin(solution) + 1.5*sin(2.718*solution);
+    double result = 0;
+    //FIXME: implement objective function
     return result;
+}
+
+
+Solution GainOptimizer::takeStep(Solution currSoln)
+{
+    Solution candidateSoln;
+
+    double kpStep = 0;
+    double kiStep = 0;
+    double kdStep = 0;
+
+
+
+    return candidateSoln;
+}
+
+
+void GainOptimizer::enforceBounds(Solution& candidateSoln)
+{
+    if (candidateSoln.kp < bounds.at(0)) candidateSoln.kp = bounds.at(0);
+    else if (candidateSoln.kp > bounds.at(1)) candidateSoln.kp = bounds.at(1);
+
+    if (candidateSoln.ki < bounds.at(2)) candidateSoln.ki = bounds.at(2);
+    else if (candidateSoln.ki > bounds.at(3)) candidateSoln.ki = bounds.at(3);
+
+    if (candidateSoln.kd < bounds.at(4)) candidateSoln.kd = bounds.at(4);
+    else if (candidateSoln.kd > bounds.at(5)) candidateSoln.kd = bounds.at(5);
+}
+
+
+double GainOptimizer::randn()
+{
+    const double e = 2.78128;
+    const double sigma = 2;
+    const double mu = 0;
+
+    double returnVal = 0;
+    bool acceptVal = false;
+
+    while(!acceptVal)
+    {
+        double x = (rand() % 200 / 100.0) - 1;
+        double expTerm = -1*pow((x - mu), 2) / (2*pow(sigma, 2));
+        double prob = 1/(sigma*sqrt(2*M_PI))*expTerm;
+        if (prob > rand() % 100 / 100.0)
+        {
+            acceptVal = true;
+            returnVal = x;
+        }
+    }
+
+    return returnVal;
 }

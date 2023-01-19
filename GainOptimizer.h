@@ -10,6 +10,7 @@ objective function runs a simulation using the Simulator class, and compares the
 reference trajectory with a weighted average to calculate error.  
 */
 
+#include "OptimizerSolution.h"
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -24,11 +25,15 @@ class GainOptimizer
 
     private:
     int numIterations;
-    double initialTemp, bestSoln, bestScore, currSoln, currScore;
+    double initialTemp;
+    Solution bestSoln, currSoln;
     vector<double> bounds;
     // double kp, ki, kd;
     
-    double objectiveFunction(double solution);
+    double objectiveFunction(Solution soln);
+    Solution takeStep(Solution currSoln);
+    void enforceBounds(Solution& candidateSoln);
+    double randn();
 
 
 };

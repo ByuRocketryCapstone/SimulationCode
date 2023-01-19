@@ -66,11 +66,11 @@ void Generator::generateTrajectories()
 // in radians
 double Generator::simulate(Simulator* currSim, double deploymentAngle)
 {
-    double hOut, VOut, aOut;  
-    currSim->calcNextStep(hOut, VOut, aOut, deploymentAngle);
+    double hOut, VOut, aOut, tOut;  
+    currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
     while (VOut > 0.1)
     {
-        currSim->calcNextStep(hOut, VOut, aOut, deploymentAngle);
+        currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
     }
     return currSim->getApogee();
 }

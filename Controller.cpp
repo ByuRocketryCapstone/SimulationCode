@@ -38,6 +38,11 @@ void Controller::loadData(string dataFile)
         refVelocities.push_back(stod(dataVals.at(2)));
         refAccels.push_back(stod(dataVals.at(3)));
     }
+
+    // cout << refTimes.size() << endl;
+    // cout << refHeights.size() << endl;
+    // cout << refVelocities.size() << endl;
+    // cout << refAccels.size() << endl;
 }
 
 
@@ -48,11 +53,13 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
     ref_alpha = getCurrentAngle();
 
     double error_h = currHeight - getRefHeight(currTime);
+    //cout <<"t: " << currTime << ", h: " << error_h << endl;
     double error_v = currVelocity - getRefVelocity(currTime);
     double error_a = currAccel - getRefAccel(currTime);
 
     //Actual PID Magic
     cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd);
+    //cout << cmd_alpha << endl;
 
     //if it is being weird we will add anti windup scheme here
 
@@ -60,6 +67,8 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
     if (cmd_alpha >= 70 * (M_PI/180)) cmd_alpha = 70 * (M_PI/180);
     else if (cmd_alpha <= 0) cmd_alpha = 0;
     else cmd_alpha = cmd_alpha;
+
+    ref_alpha = cmd_alpha;
 
     return cmd_alpha;
 }
@@ -94,7 +103,8 @@ int Controller::findTimeIndex(double t)
     {
         if(refTimes.at(i) > t) return i;  //return time index above the specified time value  
     }
-    return -1;  //index was not found
+    cout << "Didn't find index" << endl;
+    return refTimes.size()-1;  //index was not found
 }
 
 

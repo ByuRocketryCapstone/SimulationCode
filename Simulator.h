@@ -26,7 +26,7 @@ class Simulator
     public:
     Simulator(double h0, double V0, double theta);
     ~Simulator();
-    void calcNextStep(double& hOut, double& VOut, double& aOut, double alpha);
+    void calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha);
     double getApogee();
     void writeRecord(string fileSpec = "");
 

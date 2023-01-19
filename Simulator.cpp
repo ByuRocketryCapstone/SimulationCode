@@ -36,7 +36,7 @@ Simulator::~Simulator()
 
 
 // Performs an energy balance for one height step. Output values are pass-by-reference parameters.
-void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double alpha)
+void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha)
 {   
     double totalEnergy = m_r*g*h + 0.5*m_r*V*V; //calc total energy at current step
     double energyLoss = 0.5*getAirDensity(h)*V*V*(A_r*Cd_r +
@@ -71,7 +71,7 @@ void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double al
     hOut = h;
     VOut = V;
     aOut = accel;
-
+    tOut = currTime;
 }
 
 
