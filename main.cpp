@@ -2,8 +2,8 @@
 // TEST_CONTROL_SCHEME variable to true. To generate optimal reference trajectories for the PID
 // controller, set GENERATE_TRAJECTORIES to true. To tune gains for the PID controller with the
 // optimizer, set TUNE_CONTROLLER_GAINS to true. Set the other two options to false.
-#define TEST_CONTROL_SCHEME false
-#define GENERATE_TRAJECTORIES true
+#define TEST_CONTROL_SCHEME true
+#define GENERATE_TRAJECTORIES false
 #define TUNE_CONTROLLER_GAINS false
 
 #include <iostream>
@@ -17,6 +17,7 @@ using namespace std;
 
 #include "Simulator.h"
 #include "Controller.h"
+#include <cmath>
 
 using namespace std;
 using namespace std::chrono;
@@ -49,18 +50,32 @@ int main()
 
 void simulate(Simulator& currSim, Controller& controller)
 {
-    double currH, currV, currA, currTime, lastTime;
-    double alpha = 0, cmd_alpha = 0;
+    double getCurrentAngle();
+    double currH, currV, currA, currTime, lastTime, rate;
+    double alpha = 0, cmd_alpha = 0; 
+    rate = 20*(M_PI/180); lastTime = 0; currTime = 0;
     do
     {
         currSim.calcNextStep(currH, currV, currA, currTime, alpha);
-        if (1 || currTime >= lastTime + 0.5)
-        {
-            alpha = controlSchemeUpdate(controller, currH, currV, currA, currTime, 0);
-            //lastTime = currTime;
-        }
-        
+        cmd_alpha = controlSchemeUpdate(controller, currH, currV, currA, currTime, 0);
+        //Rate is 20deg per second 
         //insert code here that matches hardware deployment capability
+        if (cmd_alpha > alpha){
+            //If the cmd angle is larger than the current angle ie the paddles need to open
+          alpha += rate * (currTime - lastTime);
+        }
+        else if (cmd_alpha < alpha){
+            //If the cmd angle is less than the current angle ie the paddles need to close
+            alpha += -(rate * (currTime - lastTime));
+        }
+        lastTime = currTime;
+        //Saturation Limits for extra robustness cause reasons
+        if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
+        else if (alpha <= 0) alpha = 0;
+        else alpha = alpha;
+        
+
+
         
     } while(currV > 0.1);
 }

@@ -68,8 +68,6 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
     else if (cmd_alpha <= 0) cmd_alpha = 0;
     else cmd_alpha = cmd_alpha;
 
-    ref_alpha = cmd_alpha;
-
     return cmd_alpha;
 }
 
