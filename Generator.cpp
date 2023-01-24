@@ -28,7 +28,7 @@ void Generator::generateTrajectories()
         for(int j = 0; j < initialVelocities.size(); j++)
         {
             simNum++;
-            outputFilename = "datafile" + to_string(simNum) + ".txt";
+            outputFilename = REF_FILE_BASE + to_string(simNum) + ".txt";
             Simulator* currSim;
             double finalApogee = 0;     //m
             double deploymentAngle = 10 * (M_PI/180);   //radians
@@ -56,7 +56,7 @@ void Generator::generateTrajectories()
                 if (abs(previousAngle - deploymentAngle) > 0.0001) keepLooping = true;
             }
             simulations.push_back(currSim);
-            currSim->writeRecord("SimRecords/" + outputFilename);
+            currSim->writeRecord(REF_DIRECTORY + outputFilename);
         }
     }
 }

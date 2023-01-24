@@ -9,6 +9,7 @@ a reference trajectory created by the Generator class to calculate error values,
 formula to calculate a paddle deployment angle at each time step.
 */
 
+#include "consts.h"
 #include <vector>
 #include <string>
 #include <fstream>
@@ -23,11 +24,13 @@ class Controller
     public:
     Controller(double kp, double ki, double kd);
     double calcAngle(double currTime, double currHeight, double currVelocity, double currAccel);
+    int getTrajectoryNum();
 
     private:
     double kp, ki, kd;
     double ref_alpha, cmd_alpha;
     vector<double> refTimes, refHeights, refVelocities, refAccels;
+    int selectedTrajectoryNum;
     
     int findTimeIndex(double t);
     double getRefHeight(double t);

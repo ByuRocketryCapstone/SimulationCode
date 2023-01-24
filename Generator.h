@@ -11,6 +11,7 @@ information is recorded to be used as a reference by the PID controller.
 */
 
 #include "Simulator.h"
+#include "consts.h"
 #include <iostream>
 #include <vector>
 #include <cmath>

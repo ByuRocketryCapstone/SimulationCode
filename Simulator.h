@@ -11,6 +11,7 @@ steps until apogee.
 */
 
 
+#include "consts.h"
 #include <vector>
 #include <cmath>
 #include <fstream>
@@ -29,6 +30,7 @@ class Simulator
     void calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha);
     double getApogee();
     void writeRecord(string fileSpec = "");
+    double calcError(int refFileNum);
 
     private:
     const string PARAMETERS_FILE = "parameters.txt";
@@ -44,6 +46,7 @@ class Simulator
     double getPaddleDrag(double alpha);
 
     void populateParameters(ifstream& reader);
+    vector<string> split(const string& s, char delimiter);
     
 
 };

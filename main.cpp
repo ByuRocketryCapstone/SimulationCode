@@ -2,9 +2,9 @@
 // TEST_CONTROL_SCHEME variable to true. To generate optimal reference trajectories for the PID
 // controller, set GENERATE_TRAJECTORIES to true. To tune gains for the PID controller with the
 // optimizer, set TUNE_CONTROLLER_GAINS to true. Set the other two options to false.
-#define TEST_CONTROL_SCHEME true
-#define GENERATE_TRAJECTORIES false
-#define TUNE_CONTROLLER_GAINS false
+#define TEST_CONTROL_SCHEME false
+#define GENERATE_TRAJECTORIES !TEST_CONTROL_SCHEME
+//#define TUNE_CONTROLLER_GAINS false
 
 #include <iostream>
 #include <string>
@@ -31,8 +31,8 @@ double controlSchemeUpdate(Controller& controller, double h, double V, double a,
 
 int main()
 {
-    Simulator currSim(762.9144+50, 284.57+50, 0);
-    Controller controller(4,1,2);
+    Simulator currSim(762.9144+20, 284.57+10, 0);
+    Controller controller(6.178,0.66,1.826);
 
     auto start = high_resolution_clock::now();
 
@@ -50,15 +50,15 @@ int main()
 
 void simulate(Simulator& currSim, Controller& controller)
 {
-    double getCurrentAngle();
+    //double getCurrentAngle();
     double currH, currV, currA, currTime, lastTime, rate;
     double alpha = 0, cmd_alpha = 0; 
-    rate = 20*(M_PI/180); lastTime = 0; currTime = 0;
+    rate = 30*(M_PI/180); lastTime = 0; currTime = 0;
     do
     {
         currSim.calcNextStep(currH, currV, currA, currTime, alpha);
         cmd_alpha = controlSchemeUpdate(controller, currH, currV, currA, currTime, 0);
-        //Rate is 20deg per second 
+        //rate is 30 deg per second 
         //insert code here that matches hardware deployment capability
         if (cmd_alpha > alpha){
             //If the cmd angle is larger than the current angle ie the paddles need to open
@@ -73,9 +73,6 @@ void simulate(Simulator& currSim, Controller& controller)
         if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
         else if (alpha <= 0) alpha = 0;
         else alpha = alpha;
-        
-
-
         
     } while(currV > 0.1);
 }
@@ -98,42 +95,14 @@ double controlSchemeUpdate(Controller& controller, double h, double V, double a,
 #include "Controller.h"
 #include "GainOptimizer.h"
 
-double randn()
-{
-    const double e = 2.78128;
-    const double sigma = 3;
-    const double mu = 0;
-
-    double returnVal = 0;
-    bool acceptVal = false;
-
-    while(!acceptVal)
-    {
-        double x = (rand() % 200 / 100.0) - 1;
-        double expTerm = -0.5*pow((x-mu)/sigma, 2);
-        double prob = exp(expTerm)/(sigma*sqrt(2*M_PI));
-        if (prob > rand() % 100 / 100.0)
-        {
-            acceptVal = true;
-            returnVal = x;
-        }
-    }
-    
-    return returnVal;
-}
 
 int main()
 {
     // Generator generator;
     // generator.generateTrajectories();
 
-    // GainOptimizer optimizer;
-    // optimizer.evaluate();
-
-    for(int i = 0; i < 10; i++)
-    {
-        cout << randn() << endl;
-    }
+    GainOptimizer optimizer;
+    optimizer.evaluate();
 
     return 0;
 }

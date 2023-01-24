@@ -11,7 +11,8 @@ Controller::Controller(double kp, double ki, double kd)
     ref_alpha = 0;
     cmd_alpha = 0;
 
-    loadData("SimRecords/datafile1.txt");   //FIXME: make file location not a string literal
+    loadData(REF_DIRECTORY + REF_FILE_BASE + "1.txt");  
+    selectedTrajectoryNum = 1;  //FIXME: add functionality to choose between trajectories 
 }
 
 
@@ -26,8 +27,7 @@ void Controller::loadData(string dataFile)
     }
 
     string line;
-    int headerSize = 5;
-    for(int i = 0; i < headerSize; i++) getline(reader, line);  //skip header
+    for(int i = 0; i < REF_HEADER_SIZE; i++) getline(reader, line);  //skip header
 
     // read each line of the data file
     while(getline(reader, line))
@@ -101,7 +101,7 @@ int Controller::findTimeIndex(double t)
     {
         if(refTimes.at(i) > t) return i;  //return time index above the specified time value  
     }
-    cout << "Didn't find index" << endl;
+    //cout << "Didn't find index" << endl;
     return refTimes.size()-1;  //index was not found
 }
 
@@ -142,4 +142,10 @@ double Controller::getRefAccel(double t)
         (refTimes.at(upperBound)-refTimes.at(lowerBound));
     
     return refAccel;
+}
+
+
+int Controller::getTrajectoryNum()
+{
+    return selectedTrajectoryNum;
 }

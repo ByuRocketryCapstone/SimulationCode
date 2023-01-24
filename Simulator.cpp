@@ -194,3 +194,52 @@ double Simulator::getApogee()
 {
     return heightVals.at(heightVals.size()-1);
 }
+
+
+double Simulator::calcError(int refFileNum)
+{
+    double errorVal = 0;
+    vector<double> refTimes, refHeights;
+    ifstream reader(REF_DIRECTORY + REF_FILE_BASE + to_string(refFileNum) + ".txt");
+    if(!reader.is_open()) cout << "File not opened in Simulator::calcError()" << endl;
+    
+    string line;
+    for(int i = 0; i < REF_HEADER_SIZE; i++) getline(reader, line);  //skip header
+
+    while(getline(reader, line))
+    {
+        vector<string> dataVals = split(line, ',');     //split line into individual values
+        refTimes.push_back(stod(dataVals.at(0)));
+        refHeights.push_back(stod(dataVals.at(1)));
+    }
+
+    double lastIndex = 0;
+    for (int i = 0; i < refTimes.size(); i++)
+    {
+        for (int j = lastIndex; j < timeVals.size(); j++)
+        {
+            if (j != timeVals.size()-1 && timeVals.at(j+1) > refTimes.at(i))
+            {
+                lastIndex = j;
+                break;
+            }
+        }
+        errorVal += abs(refHeights.at(i) - heightVals.at(lastIndex)) / (refTimes.size() - i);
+        if (lastIndex == timeVals.size()-1) break;
+        
+    }
+    return errorVal;
+}
+
+
+std::vector<std::string> Simulator::split(const std::string& text, char delimiter)
+{                                                                                                                                                                                             
+   std::vector<std::string> splits;                                                                                                                                                           
+   std::string split;                                                                                                                                                                         
+   std::istringstream parser(text);                                                                                                                                                                  
+   while (std::getline(parser, split, delimiter))
+   {
+      splits.push_back(split);
+   }
+   return splits;
+}

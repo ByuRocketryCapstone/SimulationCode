@@ -11,6 +11,8 @@ reference trajectory with a weighted average to calculate error.
 */
 
 #include "OptimizerSolution.h"
+#include "Controller.h"
+#include "Simulator.h"
 #include <cmath>
 #include <vector>
 #include <iostream>
@@ -31,7 +33,7 @@ class GainOptimizer
     // double kp, ki, kd;
     
     double objectiveFunction(Solution soln);
-    Solution takeStep(Solution currSoln);
+    Solution takeStep(Solution currSoln, double currTemp);
     void enforceBounds(Solution& candidateSoln);
     double randn();
 
