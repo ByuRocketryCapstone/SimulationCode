@@ -2,7 +2,7 @@
 // TEST_CONTROL_SCHEME variable to true. To generate optimal reference trajectories for the PID
 // controller, set GENERATE_TRAJECTORIES to true. To tune gains for the PID controller with the
 // optimizer, set TUNE_CONTROLLER_GAINS to true. Set the other two options to false.
-#define TEST_CONTROL_SCHEME false
+#define TEST_CONTROL_SCHEME true
 #define GENERATE_TRAJECTORIES !TEST_CONTROL_SCHEME
 //#define TUNE_CONTROLLER_GAINS false
 
@@ -25,9 +25,6 @@ using namespace std::chrono;
 // h_0 = 762.9144;         //height at MECO, m
 // V_0 = 284.57;           //velocity at MECO, m/s
 
-void simulate(Simulator& currSim, Controller& controller);
-double controlSchemeUpdate(Controller& controller, double h, double V, double a, double t, double theta);
-
 
 int main()
 {
@@ -36,7 +33,7 @@ int main()
 
     auto start = high_resolution_clock::now();
 
-    simulate(currSim, controller);
+    currSim.simulate(controller);
 
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<milliseconds>(stop - start);
@@ -46,44 +43,6 @@ int main()
 
     return 0;
 }
-
-
-void simulate(Simulator& currSim, Controller& controller)
-{
-    //double getCurrentAngle();
-    double currH, currV, currA, currTime, lastTime, rate;
-    double alpha = 0, cmd_alpha = 0; 
-    rate = 30*(M_PI/180); lastTime = 0; currTime = 0;
-    do
-    {
-        currSim.calcNextStep(currH, currV, currA, currTime, alpha);
-        cmd_alpha = controlSchemeUpdate(controller, currH, currV, currA, currTime, 0);
-        //rate is 30 deg per second 
-        //insert code here that matches hardware deployment capability
-        if (cmd_alpha > alpha){
-            //If the cmd angle is larger than the current angle ie the paddles need to open
-          alpha += rate * (currTime - lastTime);
-        }
-        else if (cmd_alpha < alpha){
-            //If the cmd angle is less than the current angle ie the paddles need to close
-            alpha += -(rate * (currTime - lastTime));
-        }
-        lastTime = currTime;
-        //Saturation Limits for extra robustness cause reasons
-        if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
-        else if (alpha <= 0) alpha = 0;
-        else alpha = alpha;
-        
-    } while(currV > 0.1);
-}
-
-
-double controlSchemeUpdate(Controller& controller, double h, double V, double a, double t, double theta)
-{
-    return controller.calcAngle(t, h, V, a);
-    //FIXME: add stepper motor speed limits so paddles can't instantly deploy
-}
-
 
 #endif //TEST_CONTROL_SCHEME
 
@@ -98,11 +57,11 @@ double controlSchemeUpdate(Controller& controller, double h, double V, double a,
 
 int main()
 {
-    // Generator generator;
-    // generator.generateTrajectories();
+    Generator generator;
+    generator.generateTrajectories();
 
-    GainOptimizer optimizer;
-    optimizer.evaluate();
+    // GainOptimizer optimizer;
+    // optimizer.evaluate();
 
     return 0;
 }

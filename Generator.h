@@ -11,6 +11,7 @@ information is recorded to be used as a reference by the PID controller.
 */
 
 #include "Simulator.h"
+#include "Controller.h"
 #include "consts.h"
 #include <iostream>
 #include <vector>
@@ -23,7 +24,7 @@ class Generator
     public:
     Generator();
     void generateTrajectories();
-    double simulate(Simulator* currSim, double deploymentAngle);
+    //double simulate(Simulator* currSim, double deploymentAngle);
 
     private:
     vector<Simulator*> simulations;

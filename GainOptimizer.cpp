@@ -85,31 +85,8 @@ double GainOptimizer::objectiveFunction(Solution soln)
 
     Controller controller(soln.kp, soln.ki, soln.kd);
     Simulator currSim(762.9144+20, 284.57+10, 0);
-    //double getCurrentAngle();
-    double currH, currV, currA, currTime, lastTime, rate;
-    double alpha = 0, cmd_alpha = 0; 
-    rate = 30*(M_PI/180); lastTime = 0; currTime = 0;
-    do
-    {
-        currSim.calcNextStep(currH, currV, currA, currTime, alpha);
-        cmd_alpha = controller.calcAngle(currTime, currH, currV, currA);
-        //rate is 30 deg per second 
-        //insert code here that matches hardware deployment capability
-        if (cmd_alpha > alpha){
-            //If the cmd angle is larger than the current angle ie the paddles need to open
-          alpha += rate * (currTime - lastTime);
-        }
-        else if (cmd_alpha < alpha){
-            //If the cmd angle is less than the current angle ie the paddles need to close
-            alpha += -(rate * (currTime - lastTime));
-        }
-        lastTime = currTime;
-        //Saturation Limits for extra robustness cause reasons
-        if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
-        else if (alpha <= 0) alpha = 0;
-        else alpha = alpha;
-        
-    } while(currV > 0.1);
+    
+    currSim.simulate(controller);
 
     result = currSim.calcError(1);
 

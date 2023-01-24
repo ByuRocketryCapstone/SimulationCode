@@ -3,7 +3,7 @@
 Generator::Generator()
 {
     desiredApogee = 3048;   // m
-    tolerance = 0.001;      //0.1 percent
+    tolerance = 0.0005;      //0.01 percent
     maxAngle = 70 * (M_PI/180);     //radians
 
     // starting height and velocity values at MECO obtained from OpenRocket
@@ -23,6 +23,9 @@ void Generator::generateTrajectories()
     string outputFilename = "";
     int simNum = 0;
 
+    //dummy controller object to satisfy argument of Simulator::simulate()
+    Controller dummyController(0,0,0);
+
     for (int i = 0; i < initialHeights.size(); i++)
     {
         for(int j = 0; j < initialVelocities.size(); j++)
@@ -40,8 +43,9 @@ void Generator::generateTrajectories()
             {
                 numRuns++;
                 keepLooping = false;
-                currSim = new Simulator(initialHeights.at(i), initialVelocities.at(j), 0);
-                finalApogee = simulate(currSim, deploymentAngle);
+                currSim = new Simulator(initialHeights.at(i), initialVelocities.at(j), 0, deploymentAngle);
+                currSim->simulate(dummyController);
+                finalApogee = currSim->getApogee();
                 double previousAngle = deploymentAngle;
                 adjustAngle(deploymentAngle, angleStep, finalApogee);   //FIXME: restrict speed of angle change
 
@@ -64,16 +68,16 @@ void Generator::generateTrajectories()
 
 // Exectutes the simulation of the currSim argument at a specified paddle deployment angle
 // in radians
-double Generator::simulate(Simulator* currSim, double deploymentAngle)
-{
-    double hOut, VOut, aOut, tOut;  
-    currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
-    while (VOut > 0.1)
-    {
-        currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
-    }
-    return currSim->getApogee();
-}
+// double Generator::simulate(Simulator* currSim, double deploymentAngle)
+// {
+//     double hOut, VOut, aOut, tOut;  
+//     currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
+//     while (VOut > 0.1)
+//     {
+//         currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
+//     }
+//     return currSim->getApogee();
+// }
 
 
 // Generate combinations of MECO heights and velocities using the given seed values

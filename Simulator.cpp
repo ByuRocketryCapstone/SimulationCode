@@ -3,7 +3,7 @@
 // Constructor for Simulator objects. Takes in initial height, velocity, inclination angle, and sets
 // a constant step size to initialize the simulation. Also reads in characteristics of the rocket
 // from the parameters file.
-Simulator::Simulator(double h0, double V0, double theta0)
+Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
 {
     ifstream reader(PARAMETERS_FILE);
     if(!reader.is_open()) 
@@ -19,6 +19,7 @@ Simulator::Simulator(double h0, double V0, double theta0)
 
     heightStep = 0.05;  //m
     currTime = 0;
+    fixedPaddleAngle = alpha0;
 
     // record data for the rocket at MECO
     timeVals.push_back(0);
@@ -32,6 +33,37 @@ Simulator::Simulator(double h0, double V0, double theta0)
 Simulator::~Simulator()
 {
     //writeRecord();
+}
+
+
+void Simulator::simulate(Controller& controller)
+{
+    //double getCurrentAngle();
+    double currH, currV, currA, currTime, lastTime;
+    double alpha, cmd_alpha;
+    alpha = 0, cmd_alpha = 0, lastTime = 0, currTime = 0;
+    do
+    {
+        calcNextStep(currH, currV, currA, currTime, alpha);
+        if (fixedPaddleAngle == -1) cmd_alpha = controller.calcAngle(currTime, currH, currV, currA);
+        else cmd_alpha = fixedPaddleAngle;
+
+        //enforce actual paddle deployment limitations
+        if (cmd_alpha > alpha){
+            //If the cmd angle is larger than the current angle ie the paddles need to open
+            alpha += PADDLE_DEPLOYMENT_RATE * (currTime - lastTime);
+        }
+        else if (cmd_alpha < alpha){
+            //If the cmd angle is less than the current angle ie the paddles need to close
+            alpha += -(PADDLE_DEPLOYMENT_RATE * (currTime - lastTime));
+        }
+        lastTime = currTime;
+        //Saturation Limits for extra robustness cause reasons
+        if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
+        else if (alpha <= 0) alpha = 0;
+        else alpha = alpha;
+        
+    } while(currV > 0.1);
 }
 
 

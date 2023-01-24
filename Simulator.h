@@ -12,6 +12,8 @@ steps until apogee.
 
 
 #include "consts.h"
+#include "Controller.h"
+
 #include <vector>
 #include <cmath>
 #include <fstream>
@@ -25,9 +27,9 @@ using namespace std;
 class Simulator
 {
     public:
-    Simulator(double h0, double V0, double theta);
+    Simulator(double h0, double V0, double theta, double alpha = -1);
     ~Simulator();
-    void calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha);
+    void simulate(Controller& controller);
     double getApogee();
     void writeRecord(string fileSpec = "");
     double calcError(int refFileNum);
@@ -39,9 +41,11 @@ class Simulator
     double h, V, a, theta, currTime;
     double m_r, Cd_r, D_r, A_r, L_p, W_p, g, launchHeight;
     double heightStep;
+    double fixedPaddleAngle;
     
     vector<double> timeVals, heightVals, velocityVals, accelVals, alphaVals;
 
+    void calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha);
     double getAirDensity(double h);
     double getPaddleDrag(double alpha);
 
