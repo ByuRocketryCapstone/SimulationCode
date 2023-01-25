@@ -4,11 +4,11 @@
 GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
-    initialTemp = 100;
-    numIterations = 2000;
+    initialTemp = 200;
+    numIterations = 1000;
 
     //set bounds
-    bounds = {0, 20, 0, 20, 0, 20};
+    bounds = {0, 20, 0, 5, 0, 3};
 
     //seed random number generator with current time
     srand(time(0));
@@ -17,65 +17,76 @@ GainOptimizer::GainOptimizer()
 
 void GainOptimizer::evaluate()
 {
-    //generate and evaluate random starting solution
-    bestSoln.setGains(1,1,1);
-    bestSoln.setScore(objectiveFunction(bestSoln));
+    // vector<Solution> bestSolnsList;
+    // for(int j = 0; j < 5; j++)
+    // {
+        //generate and evaluate random starting solution
+        bestSoln.setGains(1,1,1);
+        bestSoln.setScore(objectiveFunction(bestSoln));
 
-    //set starting point as current solution
-    currSoln.equals(bestSoln);
+        //set starting point as current solution
+        currSoln.equals(bestSoln);
 
-    //initialize temperature variable
-    double currTemp = initialTemp;
+        //initialize temperature variable
+        double currTemp = initialTemp;
 
-    for (int i = 0; i < numIterations; i++)
-    {
-        //move currSoln to the optimal close to the end of the annealing
-        if (i == int(0.8*numIterations)) currSoln.equals(bestSoln);
-
-        //take random step
-        Solution candidateSoln = takeStep(currSoln, currTemp);
-
-        //ensure solution is within bounds
-        enforceBounds(candidateSoln);
-
-        //evaluate new candidate solution
-        candidateSoln.setScore(objectiveFunction(candidateSoln));
-        
-        //update best if candidate solution is better
-        if(candidateSoln.score < bestSoln.score) 
+        for (int i = 0; i < numIterations; i++)
         {
-            bestSoln.equals(candidateSoln);
-            cout << "New best found. kp = " << bestSoln.kp << ", ki = " 
-                << bestSoln.ki << ", kd = " << bestSoln.kd << endl;
-        }
+            //move currSoln to the optimal close to the end of the annealing
+            if (i == int(0.6*numIterations)) currSoln.equals(bestSoln);
 
-        //decrease temperature with piecewise annealing schedule
-        if (i < 0.8*numIterations) 
-        {
-            currTemp = initialTemp - (0.1*initialTemp/(0.8*numIterations)) * i;
-        }
-        else if (i >= 0.8*numIterations && i <= numIterations) 
-        {
-            currTemp = initialTemp - (0.9*initialTemp/(0.2*numIterations)) * (i - 0.8*numIterations);
-        }
-        else cout << "Error in GainOptimizer::evaluate(), i index out of bounds." << endl;
+            //take random step
+            Solution candidateSoln = takeStep(currSoln, currTemp);
 
-        //calculate metropolis acceptance criteria
-        double diff = candidateSoln.score - currSoln.score;
-        double metropolisCriteria = exp(-diff/currTemp);
+            //ensure solution is within bounds
+            enforceBounds(candidateSoln);
 
-        //compare metropolis criteria to random value between 0 and 1 for acceptance
-        //if diff is negative, solution is automatically accepted (represents better soln)
-        if (diff < 0 || ((rand() % 100) / 100.0) < metropolisCriteria)
-        {
-            currSoln.equals(candidateSoln);
+            //evaluate new candidate solution
+            candidateSoln.setScore(objectiveFunction(candidateSoln));
+            
+            //update best if candidate solution is better
+            if(candidateSoln.score < bestSoln.score) 
+            {
+                bestSoln.equals(candidateSoln);
+                cout << "New best found. kp = " << bestSoln.kp << ", ki = " 
+                    << bestSoln.ki << ", kd = " << bestSoln.kd << endl;
+            }
+
+            //decrease temperature with piecewise annealing schedule
+            if (i < 0.6*numIterations) 
+            {
+                currTemp = initialTemp - (0.1*initialTemp/(0.6*numIterations)) * i;
+            }
+            else if (i >= 0.6*numIterations && i <= numIterations) 
+            {
+                currTemp = initialTemp - (0.9*initialTemp/(0.4*numIterations)) * (i - 0.6*numIterations);
+            }
+            else cout << "Error in GainOptimizer::evaluate(), i index out of bounds." << endl;
+
+            //calculate metropolis acceptance criteria
+            double diff = candidateSoln.score - currSoln.score;
+            double metropolisCriteria = exp(-diff/currTemp);
+
+            //compare metropolis criteria to random value between 0 and 1 for acceptance
+            //if diff is negative, solution is automatically accepted (represents better soln)
+            if (diff < 0 || ((rand() % 100) / 100.0) < metropolisCriteria)
+            {
+                currSoln.equals(candidateSoln);
+            }
+
+            if(i % 50 == 0) cout << "Iteration: " << i << endl;
         }
-
-        if(i % 50 == 0) cout << "Iteration: " << i << endl;
-    }
-    cout << "kp: " << bestSoln.kp << endl;
-    cout << "ki: " << bestSoln.ki << endl;
-    cout << "kd: " << bestSoln.kd << endl;
+        cout << "kp: " << bestSoln.kp << endl;
+        cout << "ki: " << bestSoln.ki << endl;
+        cout << "kd: " << bestSoln.kd << endl;
+    //     Solution tmpBest;
+    //     tmpBest.equals(bestSoln);
+    //     bestSolnsList.push_back(tmpBest);
+    // }
+    // for(int i = 0; i < bestSolnsList.size(); i++)
+    // {
+    //     cout << "kp: " << bestSolnsList.at(i).kp << ", ki: " << bestSolnsList.at(i).ki << ", kd: " << bestSolnsList.at(i).kd << endl; 
+    // }
 }
 
 
@@ -98,9 +109,9 @@ Solution GainOptimizer::takeStep(Solution currSoln, double currTemp)
 {
     Solution candidateSoln;
 
-    double kpStep = (rand() % 2000*(currTemp/initialTemp) / 500.0) - 2;
-    double kiStep = (rand() % 2000*(currTemp/initialTemp) / 500.0) - 2;
-    double kdStep = (rand() % 2000*(currTemp/initialTemp) / 500.0) - 2;
+    double kpStep = (rand() % 5000*(currTemp/initialTemp) / 500.0) - 5;
+    double kiStep = (rand() % 1000*(currTemp/initialTemp) / 500.0) - 1;
+    double kdStep = (rand() % 500*(currTemp/initialTemp) / 500.0) - 0.5;
 
     candidateSoln.kp = currSoln.kp + kpStep;
     candidateSoln.ki = currSoln.ki + kiStep;

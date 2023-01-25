@@ -1,7 +1,7 @@
 #include "Simulator.h"
 
-// Constructor for Simulator objects. Takes in initial height, velocity, inclination angle, and sets
-// a constant step size to initialize the simulation. Also reads in characteristics of the rocket
+// Constructor for Simulator objects. Takes in initial height (m), velocity (m/s), inclination angle (rad),
+// and sets a constant step size to initialize the simulation. Also reads in characteristics of the rocket
 // from the parameters file.
 Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
 {
@@ -13,9 +13,9 @@ Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
     }
 
     populateParameters(reader);
-    h = h0;
-    V = V0;
-    theta = theta0;
+    h = h0;     //m
+    V = V0;     //m/s
+    theta = theta0; //radians
 
     heightStep = 0.05;  //m
     currTime = 0;
@@ -38,7 +38,6 @@ Simulator::~Simulator()
 
 void Simulator::simulate(Controller& controller)
 {
-    //double getCurrentAngle();
     double currH, currV, currA, currTime, lastTime;
     double alpha, cmd_alpha;
     alpha = 0, cmd_alpha = 0, lastTime = 0, currTime = 0;

@@ -1,3 +1,9 @@
+/*
+File: main.cpp
+Author: Gerritt Graham
+Description: Main file used to run the various simulation analyses. 
+*/
+
 #include <iostream>
 #include <string>
 #include <sstream>
@@ -16,12 +22,39 @@ using namespace std;
 
 int main()
 {
-    Simulator currSim(762.9144+20, 284.57+10, 0);
-    Controller controller(6.178,0.66,1.826);
+    double openRocketHeight = 762.9144;     //m
+    double openRocketVelocity = 284.57;     //m/s
 
-    currSim.simulate(controller);
-    
-    currSim.writeRecord("SimRecords/simulation1.txt");
+    //string operationMode = "Simulate";
+    //string operationMode = "Generate";
+    string operationMode = "Optimize";
+
+    if (operationMode == "Simulate")
+    {
+        Simulator currSim(openRocketHeight+20, openRocketVelocity+10, 0);
+        Controller controller(6.178,0.66,1.826);
+
+        currSim.simulate(controller);
+        
+        currSim.writeRecord("SimRecords/simulation1.txt");
+    }
+
+    else if (operationMode == "Generate")
+    {
+        Generator trajectoryGenerator;
+        trajectoryGenerator.generateTrajectories();
+    }
+
+    else if (operationMode == "Optimize")
+    {
+        GainOptimizer optimizer;
+        optimizer.evaluate();
+    }
+
+    else
+    {
+        cout << "Invalid value of operationMode used: " << operationMode << endl;
+    }
 
     return 0;
 }
