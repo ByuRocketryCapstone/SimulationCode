@@ -59,13 +59,14 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
 
     //Actual PID Magic
 
-    cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd);
+    //cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd);
     //cout << cmd_alpha << endl;
 
     //Trigger band antiwindup scheme (trying to improve robustnesss)
 
     if (abs(error_v) > abs(error_v * .15)) cmd_alpha = ref_alpha + (error_v * kp) - (error_a * kd);
     else if (abs(error_v) <= abs(error_v * .15)) cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd); 
+
 
     //This is our saturation limits so we dont break things cause that would cause mucho problems
     if (cmd_alpha >= 70 * (M_PI/180)) cmd_alpha = 70 * (M_PI/180);
