@@ -25,9 +25,9 @@ int main()
     double openRocketHeight = 762.9144;     //m
     double openRocketVelocity = 284.57;     //m/s
 
-    //string operationMode = "Simulate";
+    string operationMode = "Simulate";
     //string operationMode = "Generate";
-    string operationMode = "Optimize";
+    //string operationMode = "Optimize";
 
     if (operationMode == "Simulate")
     {
