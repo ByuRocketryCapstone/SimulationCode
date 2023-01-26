@@ -89,6 +89,9 @@ void GainOptimizer::evaluate()
     // }
 }
 
+void GainOptimizer::ex_evaluate(){
+    
+}
 
 double GainOptimizer::objectiveFunction(Solution soln)
 {
