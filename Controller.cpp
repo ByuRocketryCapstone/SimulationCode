@@ -64,8 +64,8 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
 
     //Trigger band antiwindup scheme (trying to improve robustnesss)
 
-    if (abs(error_v) > abs(error_v * .15)) cmd_alpha = ref_alpha + (error_v * kp) - (error_a * kd);
-    else if (abs(error_v) <= abs(error_v * .15)) cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd); 
+    if (abs(error_v) > getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) - (error_a * kd);
+    else if (abs(error_v) <= getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd); 
 
 
     //This is our saturation limits so we dont break things cause that would cause mucho problems
