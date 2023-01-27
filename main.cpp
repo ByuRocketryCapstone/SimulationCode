@@ -25,10 +25,10 @@ int main()
     double openRocketHeight = 762.9144;     //m
     double openRocketVelocity = 284.57;     //m/s
 
-    string operationMode = "Simulate";
+    //string operationMode = "Simulate";
     //string operationMode = "Generate";
-    //string operationMode = "Optimize";
-    //string operationMode = "Ex_Optimize";
+    string operationMode = "Optimize";
+    
 
     if (operationMode == "Simulate")
     {
@@ -49,8 +49,8 @@ int main()
     else if (operationMode == "Optimize")
     {
         GainOptimizer optimizer;
-        optimizer.evaluate();
-        
+        //optimizer.evaluate();
+        optimizer.findPertibationSolution();
     }
 
     else

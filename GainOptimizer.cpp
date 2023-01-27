@@ -7,7 +7,7 @@ GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
     initialTemp = 200;
-    numIterations = 1000;
+    numIterations = 50;
 
     //set bounds
     bounds = {0, 20, 0, 5, 0, 3};
@@ -138,16 +138,23 @@ void GainOptimizer::enforceBounds(Solution& candidateSoln)
     else if (candidateSoln.kd > bounds.at(5)) candidateSoln.kd = bounds.at(5);
 }
 
-Solution GainOptimizer::findPertibationSolution(){
+void GainOptimizer::findPertibationSolution(){
 
     vector<Solution> Solution_Options;
 
 
-    for (int i = 0; i <= 5; i++){
+    for (int i = 1; i <= 5; i++){
 
-    Solution evaluate();
+    evaluate();
 
     Solution_Options.push_back(bestSoln);
+
     }
+    
+    for (int i = 0; i <= 4; i++){
+    
+    cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
+    }
+
 
 }

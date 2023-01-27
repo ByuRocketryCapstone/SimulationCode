@@ -24,7 +24,7 @@ class GainOptimizer
     public:
     GainOptimizer();
     Solution evaluate();
-    Solution findPertibationSolution();
+    void findPertibationSolution();
     // another evaulate function that evaulates 5 times 5 sets of gains, then try all five at different pertubations
     private:
     int numIterations;
