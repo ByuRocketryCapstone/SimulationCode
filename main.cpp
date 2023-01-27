@@ -28,6 +28,7 @@ int main()
     string operationMode = "Simulate";
     //string operationMode = "Generate";
     //string operationMode = "Optimize";
+    //string operationMode = "Ex_Optimize";
 
     if (operationMode == "Simulate")
     {
@@ -49,6 +50,7 @@ int main()
     {
         GainOptimizer optimizer;
         optimizer.evaluate();
+        
     }
 
     else

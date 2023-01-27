@@ -1,4 +1,6 @@
 #include "GainOptimizer.h"
+#include <iostream>
+#include <vector>
 
 
 GainOptimizer::GainOptimizer()
@@ -15,7 +17,7 @@ GainOptimizer::GainOptimizer()
 }
 
 
-void GainOptimizer::evaluate()
+Solution GainOptimizer::evaluate()
 {
     // vector<Solution> bestSolnsList;
     // for(int j = 0; j < 5; j++)
@@ -79,6 +81,9 @@ void GainOptimizer::evaluate()
         cout << "kp: " << bestSoln.kp << endl;
         cout << "ki: " << bestSoln.ki << endl;
         cout << "kd: " << bestSoln.kd << endl;
+
+        return bestSoln;
+
     //     Solution tmpBest;
     //     tmpBest.equals(bestSoln);
     //     bestSolnsList.push_back(tmpBest);
@@ -89,16 +94,13 @@ void GainOptimizer::evaluate()
     // }
 }
 
-void GainOptimizer::ex_evaluate(){
-    
-}
 
 double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
 
     Controller controller(soln.kp, soln.ki, soln.kd);
-    Simulator currSim(762.9144+20, 284.57+10, 0);
+    Simulator currSim(762.9144+0, 284.57+0, 0);
     
     currSim.simulate(controller);
 
@@ -136,3 +138,16 @@ void GainOptimizer::enforceBounds(Solution& candidateSoln)
     else if (candidateSoln.kd > bounds.at(5)) candidateSoln.kd = bounds.at(5);
 }
 
+Solution GainOptimizer::findPertibationSolution(){
+
+    vector<Solution> Solution_Options;
+
+
+    for (int i = 0; i <= 5; i++){
+
+    Solution evaluate();
+
+    Solution_Options.push_back(bestSoln);
+    }
+
+}
