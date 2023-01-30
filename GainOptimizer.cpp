@@ -105,7 +105,7 @@ double GainOptimizer::objectiveFunction(Solution soln)
         cout << "Parameters file not opened in Simulator::Simulator()." << endl;
         return;
     }
-    
+
     populateParameters(reader);
 
     Controller controller(soln.kp, soln.ki, soln.kd);
