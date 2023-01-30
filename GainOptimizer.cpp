@@ -1,7 +1,7 @@
 #include "GainOptimizer.h"
 #include <iostream>
 #include <vector>
-
+#include "Simulator.h"
 
 GainOptimizer::GainOptimizer()
 {
@@ -99,8 +99,17 @@ double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
 
+     ifstream reader(PARAMETERS_FILE);
+    if(!reader.is_open()) 
+    {
+        cout << "Parameters file not opened in Simulator::Simulator()." << endl;
+        return;
+    }
+    
+    populateParameters(reader);
+
     Controller controller(soln.kp, soln.ki, soln.kd);
-    Simulator currSim(762.9144+0, 284.57+0, 0);
+    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
     
     currSim.simulate(controller);
 
@@ -156,5 +165,11 @@ void GainOptimizer::findPertibationSolution(){
     cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
     }
 
+   for (int i = 0; i <= 4; i++){
+
+    Solution_Options.at(i);
+    objectiveFunction(Solution_Options.at(i));   
+    
+    }
 
 }

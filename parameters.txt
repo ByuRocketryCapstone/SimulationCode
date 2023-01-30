@@ -4,3 +4,5 @@ rocketDiameter 0.1524                           #meters
 paddleLength 0.2                                #meters
 paddleWidth 0.1                                 #meters
 launchPadHeight 1293                            #meters, above sea level
+height_pertibation 0                            #meters
+vel_pertibation 0                               #meters/seconds
