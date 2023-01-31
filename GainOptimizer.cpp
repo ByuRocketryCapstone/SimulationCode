@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Simulator.h"
-
+bool change;
 GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
@@ -98,24 +98,67 @@ Solution GainOptimizer::evaluate()
 double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
+    double height_pertibation = 0;
+    double vel_pertibation = 0;
+    
+    //Hey Jacob You need to a first run through for when it loops throught the firs time
 
-     ifstream reader(PARAMETERS_FILE);
-    if(!reader.is_open()) 
-    {
-        cout << "Parameters file not opened in Simulator::Simulator()." << endl;
-        return;
+    if (change = false){
+            Controller controller(soln.kp, soln.ki, soln.kd);
+            Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
+    
+            currSim.simulate(controller);
+
+            result = currSim.calcError(1);
+
+             return result;
+
     }
 
-    populateParameters(reader);
+    else if( change = true ){
 
-    Controller controller(soln.kp, soln.ki, soln.kd);
-    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
+        for (int i = 0; i <= 5; i++){
+
+            if ( i < 3 ){
+
+                Controller controller(soln.kp, soln.ki, soln.kd);
+                Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
+        
+                currSim.simulate(controller);
+
+                result = currSim.calcError(1);
+
+                height_pertibation += 10;
+                vel_pertibation += 5;
+
+                cout << "First Loop" << " " << result << endl;
+                //cout << "This is the new set of gains" << endl;
+
+                return result;
+                }
+
+                    else if (i >=3 && i <= 5){
+
+                    height_pertibation = 0;
+                    vel_pertibation = 0;
+
+                    Controller controller(soln.kp, soln.ki, soln.kd);
+                    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
+            
+                    currSim.simulate(controller);
+
+                    result = currSim.calcError(1);
+
+                    height_pertibation -= 10;
+                    vel_pertibation -= 5;
+
+                    cout << "Second Loop" << " " << result << endl;
+
+                    return result;
+                    }
+            }
+    }
     
-    currSim.simulate(controller);
-
-    result = currSim.calcError(1);
-
-    return result;
 }
 
 
@@ -153,22 +196,27 @@ void GainOptimizer::findPertibationSolution(){
 
 
     for (int i = 1; i <= 5; i++){
-
+    
+    bool change = false;
     evaluate();
 
     Solution_Options.push_back(bestSoln);
 
     }
     
-    for (int i = 0; i <= 4; i++){
+    cout << " I got here" << endl;
+    bool change = true;
+    // for (int i = 0; i <= 4; i++){
     
-    cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
-    }
+    // cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
+    // }
 
    for (int i = 0; i <= 4; i++){
 
+    cout << "I made it here" << endl;
     Solution_Options.at(i);
-    objectiveFunction(Solution_Options.at(i));   
+    objectiveFunction(Solution_Options.at(i)); 
+    cout << "I Pushed some gains!" << endl;  
     
     }
 
