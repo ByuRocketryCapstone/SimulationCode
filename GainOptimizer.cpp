@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Simulator.h"
-bool change;
+bool change = false;
 GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
@@ -102,65 +102,17 @@ double GainOptimizer::objectiveFunction(Solution soln)
     double vel_pertibation = 0;
     
     //Hey Jacob You need to a first run through for when it loops throught the firs time
+    
 
-    if (change = false){
             Controller controller(soln.kp, soln.ki, soln.kd);
             Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
     
             currSim.simulate(controller);
 
             result = currSim.calcError(1);
-
+            //cout << "I am here" << endl; 
              return result;
-
-    }
-
-    else if( change = true ){
-
-        for (int i = 0; i <= 5; i++){
-
-            if ( i < 3 ){
-
-                Controller controller(soln.kp, soln.ki, soln.kd);
-                Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
-        
-                currSim.simulate(controller);
-
-                result = currSim.calcError(1);
-
-                height_pertibation += 10;
-                vel_pertibation += 5;
-
-                cout << "First Loop" << " " << result << endl;
-                //cout << "This is the new set of gains" << endl;
-
-                return result;
-                }
-
-                    else if (i >=3 && i <= 5){
-
-                    height_pertibation = 0;
-                    vel_pertibation = 0;
-
-                    Controller controller(soln.kp, soln.ki, soln.kd);
-                    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
-            
-                    currSim.simulate(controller);
-
-                    result = currSim.calcError(1);
-
-                    height_pertibation -= 10;
-                    vel_pertibation -= 5;
-
-                    cout << "Second Loop" << " " << result << endl;
-
-                    return result;
-                    }
-            }
-    }
-    
-}
-
+ }
 
 Solution GainOptimizer::takeStep(Solution currSoln, double currTemp)
 {
@@ -194,22 +146,23 @@ void GainOptimizer::findPertibationSolution(){
 
     vector<Solution> Solution_Options;
 
-
-    for (int i = 1; i <= 5; i++){
     
-    bool change = false;
+    for (int i = 0; i <= 4; i++){
+    
+    
     evaluate();
 
+    cout << "I am evaluating" << endl;
     Solution_Options.push_back(bestSoln);
 
     }
     
     cout << " I got here" << endl;
     bool change = true;
-    // for (int i = 0; i <= 4; i++){
+    for (int i = 0; i <= 4; i++){
     
-    // cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
-    // }
+     cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
+    }
 
    for (int i = 0; i <= 4; i++){
 
