@@ -104,7 +104,7 @@ double GainOptimizer::objectiveFunction(Solution soln)
     //Hey Jacob You need to a first run through for when it loops throught the firs time
     
 
-            Controller controller(soln.kp, soln.ki, soln.kd);
+            Controller controller(soln.kp, soln.ki, soln.kd, 762.9144+height_pertibation, 284.57+vel_pertibation);
             Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
     
             currSim.simulate(controller);

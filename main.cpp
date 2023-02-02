@@ -26,8 +26,8 @@ int main()
     double openRocketVelocity = 284.57;     //m/s
 
     //string operationMode = "Simulate";
-    //string operationMode = "Generate";
-    string operationMode = "Optimize";
+    string operationMode = "Generate";
+    //string operationMode = "Optimize";
     
 
     if (operationMode == "Simulate")
