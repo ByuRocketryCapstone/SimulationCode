@@ -2,7 +2,8 @@
 #include <iostream>
 #include <vector>
 #include "Simulator.h"
-bool change = false;
+double height_pertibation = 0;
+double vel_pertibation = 0;
 GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
@@ -98,12 +99,7 @@ Solution GainOptimizer::evaluate()
 double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
-    double height_pertibation = 0;
-    double vel_pertibation = 0;
     
-    //Hey Jacob You need to a first run through for when it loops throught the firs time
-    
-
             Controller controller(soln.kp, soln.ki, soln.kd, 762.9144+height_pertibation, 284.57+vel_pertibation);
             Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
     
@@ -112,6 +108,7 @@ double GainOptimizer::objectiveFunction(Solution soln)
             result = currSim.calcError(1);
             //cout << "I am here" << endl; 
              return result;
+            
  }
 
 Solution GainOptimizer::takeStep(Solution currSoln, double currTemp)
@@ -145,32 +142,43 @@ void GainOptimizer::enforceBounds(Solution& candidateSoln)
 void GainOptimizer::findPertibationSolution(){
 
     vector<Solution> Solution_Options;
+    vector<Solution> Final_Solution_Options;
 
     
     for (int i = 0; i <= 4; i++){
-    
     
     evaluate();
 
-    cout << "I am evaluating" << endl;
     Solution_Options.push_back(bestSoln);
-
+    cout << "Added something to the vector" << endl;
     }
     
-    cout << " I got here" << endl;
-    bool change = true;
+    cout << " I will now print the 5 sets of gains" << endl;
+
+    
     for (int i = 0; i <= 4; i++){
     
-     cout << Solution_Options.at(i).kp <<" "<< Solution_Options.at(i).ki <<" "<< Solution_Options.at(i).kd << endl;
+     cout << "kp" << " " << " " << Solution_Options.at(i).kp << " " <<"ki" << " " << " " <<Solution_Options.at(i).ki << " " <<"kd"<< " " << " " << Solution_Options.at(i).kd << endl;
     }
-
+    
+    //cout << "I changed the pertibation" << endl;
    for (int i = 0; i <= 4; i++){
 
-    cout << "I made it here" << endl;
+    height_pertibation = -20;
+    vel_pertibation = -20;
     Solution_Options.at(i);
-    objectiveFunction(Solution_Options.at(i)); 
-    cout << "I Pushed some gains!" << endl;  
-    
+
+        for (int j = 0; j <=4; j++){
+        objectiveFunction(Solution_Options.at(i)); 
+        cout << "I Pushed some gains!" << endl;
+        height_pertibation += 10;
+        vel_pertibation += 10;
+        //Final_Solution_Options.push_back(result);
+        cout << "Added something to the Final vector" << endl;
+        }
+
     }
+
+
 
 }

@@ -1,5 +1,5 @@
 Simulation created and run on: 
-Tue Jan 24 10:53:08 2023
+Thu Feb  2 09:05:37 2023
 
 
 Time (s), Height (m), Velocity (m/s), Acceleration (m/s^2), Deployment Angle (degrees)
