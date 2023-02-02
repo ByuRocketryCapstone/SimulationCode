@@ -1,29 +1,34 @@
 #include "Controller.h" 
 
-Controller::Controller(double kp, double ki, double kd)
+Controller::Controller(double kp, double ki, double kd, double h0, double V0)
 {
     // Set values of the PID constants
     this->kp = kp;
     this->ki = ki;
     this->kd = kd;
 
+    mecoHeight = h0;
+    mecoVelocity = V0;
+
     // Initialize paddle deployment angle values
     ref_alpha = 0;
     cmd_alpha = 0;
 
-    loadData(REF_DIRECTORY + REF_FILE_BASE + "1.txt");  
+    loadData();  
     selectedTrajectoryNum = 1;  //FIXME: add functionality to choose between trajectories 
 }
 
 
 // Loads data for the reference trajectory from the file specified by dataFile. 
-void Controller::loadData(string dataFile)
+void Controller::loadData()
 {
+    string dataFile = selectFile();
+
     // Open input file stream
     ifstream reader(dataFile);
     if(!reader.is_open())
     {
-        cout << "File failed to open in Controller::loadData()." << endl;
+        cout << "Data file failed to open in Controller::loadData()." << endl;
     }
 
     string line;
@@ -46,6 +51,42 @@ void Controller::loadData(string dataFile)
 }
 
 
+string Controller::selectFile()
+{
+    string selectedFileName;
+
+    ifstream reader(REF_DIRECTORY + INDEX_FILE_NAME);
+    if(!reader.is_open())
+    {
+        cout << "Index file failed to open in Controller::loadData()." << endl;
+    }
+
+    double selectedHeight = 0, selectedVelocity = 0;
+    double HEIGHT_THRESHOLD = 40;   //m
+    double currHeight, currVelocity;
+    string filename;
+
+    reader >> currHeight >> currVelocity >> filename;
+    selectedHeight = currHeight;
+    selectedVelocity = currVelocity;
+    selectedFileName = filename;
+
+    while(reader >> currHeight)
+    {
+        reader >> currVelocity >> filename;
+        if (abs(mecoVelocity-currVelocity) < abs(mecoVelocity-selectedVelocity) 
+            && abs(mecoHeight-currHeight) < HEIGHT_THRESHOLD)
+            {
+                selectedHeight = currHeight;
+                selectedVelocity = currVelocity;
+                selectedFileName = filename;
+            }
+    }
+
+    return REF_DIRECTORY + selectedFileName;
+}
+
+
 // Runs the PID algorithm to calculate a new paddle deployment angle. Input values are the 
 // current values of the rocket in real time, not the optimal reference values
 double Controller::calcAngle(double currTime, double currHeight, double currVelocity, double currAccel)
@@ -63,7 +104,6 @@ double Controller::calcAngle(double currTime, double currHeight, double currVelo
     //cout << cmd_alpha << endl;
 
     //Trigger band antiwindup scheme (trying to improve robustnesss)
-
     if (abs(error_v) > getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) - (error_a * kd);
     else if (abs(error_v) <= getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd); 
 

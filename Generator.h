@@ -28,7 +28,7 @@ class Generator
 
     private:
     vector<Simulator*> simulations;
-    double desiredApogee, tolerance, maxAngle, seedHeight, seedVelocity;
+    double tolerance, maxAngle, seedHeight, seedVelocity;
     void populateInitialConditions(double, double, vector<double>&, vector<double>&);
     void adjustAngle(double& deploymentAngle, double& angleStep, double finalApogee);
 

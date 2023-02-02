@@ -22,13 +22,14 @@ using namespace std;
 class Controller
 {
     public:
-    Controller(double kp, double ki, double kd);
+    Controller(double kp, double ki, double kd, double h0, double V0);
     double calcAngle(double currTime, double currHeight, double currVelocity, double currAccel);
     int getTrajectoryNum();
 
     private:
     double kp, ki, kd;
     double ref_alpha, cmd_alpha;
+    double mecoHeight, mecoVelocity;
     vector<double> refTimes, refHeights, refVelocities, refAccels;
     int selectedTrajectoryNum;
     
@@ -37,7 +38,8 @@ class Controller
     double getRefVelocity(double t);
     double getRefAccel(double t);
 
-    void loadData(string dataFile);
+    void loadData();
+    string selectFile();
     vector<string> split(const string& s, char delimiter);
     double getCurrentAngle();
 
