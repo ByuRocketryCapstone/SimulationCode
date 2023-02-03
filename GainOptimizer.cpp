@@ -1,14 +1,14 @@
 #include "GainOptimizer.h"
 #include <iostream>
 #include <vector>
-#include "Simulator.h"
-double height_pertibation = 0;
-double vel_pertibation = 0;
+#include <algorithm>
+#include <numeric>
+
 GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
     initialTemp = 200;
-    numIterations = 50;
+    numIterations = 500;
 
     //set bounds
     bounds = {0, 20, 0, 5, 0, 3};
@@ -100,14 +100,14 @@ double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
     
-            Controller controller(soln.kp, soln.ki, soln.kd, 762.9144+height_pertibation, 284.57+vel_pertibation);
-            Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
-    
-            currSim.simulate(controller);
+    Controller controller(soln.kp, soln.ki, soln.kd, 762.9144+height_pertibation, 284.57+vel_pertibation);
+    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
 
-            result = currSim.calcError(1);
-            //cout << "I am here" << endl; 
-             return result;
+    currSim.simulate(controller);
+
+    result = currSim.calcError(1);
+     
+        return result;
             
  }
 
@@ -142,8 +142,7 @@ void GainOptimizer::enforceBounds(Solution& candidateSoln)
 void GainOptimizer::findPertibationSolution(){
 
     vector<Solution> Solution_Options;
-    vector<Solution> Final_Solution_Options;
-
+    vector<double> Final_Score;
     
     for (int i = 0; i <= 4; i++){
     
@@ -161,7 +160,6 @@ void GainOptimizer::findPertibationSolution(){
      cout << "kp" << " " << " " << Solution_Options.at(i).kp << " " <<"ki" << " " << " " <<Solution_Options.at(i).ki << " " <<"kd"<< " " << " " << Solution_Options.at(i).kd << endl;
     }
     
-    //cout << "I changed the pertibation" << endl;
    for (int i = 0; i <= 4; i++){
 
     height_pertibation = -20;
@@ -169,16 +167,27 @@ void GainOptimizer::findPertibationSolution(){
     Solution_Options.at(i);
 
         for (int j = 0; j <=4; j++){
-        objectiveFunction(Solution_Options.at(i)); 
-        cout << "I Pushed some gains!" << endl;
+        double result = objectiveFunction(Solution_Options.at(i)); 
+        //cout << "I Pushed some gains!" << endl;
         height_pertibation += 10;
         vel_pertibation += 10;
-        //Final_Solution_Options.push_back(result);
-        cout << "Added something to the Final vector" << endl;
+        //cout << result << endl;
+        Final_Score.push_back(result);
+        //cout << "Added something to the Final vector" << endl;
         }
 
     }
-
-
-
+    int k = 0;
+    //Averages Scores and Associated Gains
+    for (int j = 0; j <= 4; j++){
+    double A = Final_Score[0 + k];
+    double B = Final_Score[1 + k];
+    double C = Final_Score[2 + k];
+    double D = Final_Score[3 + k];
+    double E = Final_Score[4 + k];
+    double sum = A + B + C + D + E;
+    double avg = sum/5;
+    k += 5;
+    cout << "kp" << " " << " " << Solution_Options.at(j).kp << " " <<"ki" << " " << " " <<Solution_Options.at(j).ki << " " <<"kd"<< " " << " " << Solution_Options.at(j).kd <<  " " << "The Score Average For These Gains Are" << " " << avg << endl;
+    }
 }
