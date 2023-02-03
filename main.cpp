@@ -25,15 +25,15 @@ int main()
     double openRocketHeight = 762.9144;     //m
     double openRocketVelocity = 284.57;     //m/s
 
-    //string operationMode = "Simulate";
+    string operationMode = "Simulate";
     //string operationMode = "Generate";
-    string operationMode = "Optimize";
+    //string operationMode = "Optimize";
     
 
     if (operationMode == "Simulate")
     {
-        Simulator currSim(openRocketHeight-25, openRocketVelocity+13, 0);
-        Controller controller(9.83,1.46,0.67, openRocketHeight-25, openRocketVelocity+13);
+        Simulator currSim(openRocketHeight+45, openRocketVelocity-30, 0);
+        Controller controller(16.9424,2.98139,0.084468, openRocketHeight+45, openRocketVelocity-30);
 
         currSim.simulate(controller);
         
