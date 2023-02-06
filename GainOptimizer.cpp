@@ -8,7 +8,7 @@ GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
     initialTemp = 200;
-    numIterations = 500;
+    numIterations = 400;
 
     //set bounds
     bounds = {0, 20, 0, 5, 0, 3};
