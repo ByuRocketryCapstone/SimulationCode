@@ -55,7 +55,7 @@ Solution GainOptimizer::evaluate()
                     << bestSoln.ki << ", kd = " << bestSoln.kd << endl;
             }
 
-            //decrease temperature with piecewise annealing schedule
+            //decrease temperature with piecewise linear annealing schedule
             if (i < 0.6*numIterations) 
             {
                 currTemp = initialTemp - (0.1*initialTemp/(0.6*numIterations)) * i;
@@ -100,14 +100,14 @@ double GainOptimizer::objectiveFunction(Solution soln)
 {
     double result = 0;
     
-    Controller controller(soln.kp, soln.ki, soln.kd, 762.9144+height_pertibation, 284.57+vel_pertibation);
-    Simulator currSim(762.9144+height_pertibation, 284.57+vel_pertibation, 0);
+    Controller controller(soln.kp, soln.ki, soln.kd, mecoHeight+height_pertibation, mecoVelocity+vel_pertibation);
+    Simulator currSim(mecoHeight+height_pertibation, mecoVelocity+vel_pertibation, 0);
 
     currSim.simulate(controller);
 
     result = currSim.calcError(1);
      
-        return result;
+    return result;
             
  }
 

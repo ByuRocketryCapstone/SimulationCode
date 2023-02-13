@@ -22,8 +22,6 @@ using namespace std;
 
 int main()
 {
-    double openRocketHeight = 762.9144;     //m
-    double openRocketVelocity = 284.57;     //m/s
 
     //string operationMode = "Simulate";
     //string operationMode = "Generate";
@@ -32,8 +30,8 @@ int main()
 
     if (operationMode == "Simulate")
     {
-        Simulator currSim(openRocketHeight, openRocketVelocity, 0);
-        Controller controller(20,2.24675,0.0493983, openRocketHeight, openRocketVelocity);
+        Simulator currSim(mecoHeight+45, mecoVelocity-30, 0);
+        Controller controller(16.9424,2.98139,0.084468, mecoHeight+45, mecoVelocity-30);
 
         currSim.simulate(controller);
         

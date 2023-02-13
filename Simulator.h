@@ -39,7 +39,7 @@ class Simulator
     const string RECORDS_DIRECTORY = "SimRecords/";
 
     double h, V, a, theta, currTime;
-    double m_r, Cd_r, D_r, A_r, L_p, W_p, g, launchHeight, H_P, V_P;
+    double H_P, V_P;
     double heightStep;
     double fixedPaddleAngle;
     
@@ -49,7 +49,7 @@ class Simulator
     double getAirDensity(double h);
     double getPaddleDrag(double alpha);
 
-    void populateParameters(ifstream& reader);
+    //void populateParameters(ifstream& reader);
     vector<string> split(const string& s, char delimiter);
     
 

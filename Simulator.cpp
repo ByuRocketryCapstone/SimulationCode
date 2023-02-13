@@ -2,7 +2,8 @@
 
 // Constructor for Simulator objects. Takes in initial height (m), velocity (m/s), inclination angle (rad),
 // and sets a constant step size to initialize the simulation. Also reads in characteristics of the rocket
-// from the parameters file.
+// from the parameters file. The default parameter alpha0 represents a fixed paddle angle for use by the 
+// Generator class to override the controller and specify a single paddle angle for the simulation.
 Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
 {
     ifstream reader(PARAMETERS_FILE);
@@ -12,7 +13,7 @@ Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
         return;
     }
 
-    populateParameters(reader);
+    //populateParameters(reader);
     h = h0;     //m
     V = V0;     //m/s
     theta = theta0; //radians
@@ -110,7 +111,7 @@ void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double& t
 // Data from https://www.engineeringtoolbox.com/air-altitude-density-volume-d_195.html
 double Simulator::getAirDensity(double h)
 {
-    return 1.2 - 0.00012*(h+launchHeight); //kg/m^3
+    return 1.2 - 0.00012*(h+launchPadHeight); //kg/m^3
 }
 
 
@@ -127,25 +128,25 @@ double Simulator::getPaddleDrag(double alpha)
 
 // Reads in parameters of the rocket from the parameters file. Additional parameters can be
 // added by adding to the if/else block.
-void Simulator::populateParameters(ifstream& reader)
-{
-    string line;
-    while(getline(reader, line))
-    {
-        stringstream parser(line);
-        string parameterName;
-        parser >> parameterName;
+// void Simulator::populateParameters(ifstream& reader)
+// {
+//     string line;
+//     while(getline(reader, line))
+//     {
+//         stringstream parser(line);
+//         string parameterName;
+//         parser >> parameterName;
 
-        if (parameterName == "rocketDryMass") parser >> m_r;
-        else if (parameterName == "rocketDragCoefficient") parser >> Cd_r;
-        else if (parameterName == "rocketDiameter") parser >> D_r;
-        else if (parameterName == "paddleLength") parser >> L_p;
-        else if (parameterName == "paddleWidth") parser >> W_p;
-        else if (parameterName == "launchPadHeight") parser >> launchHeight;
-    } 
-    A_r = M_PI*(D_r/2)*(D_r/2);     //calculate frontal area of just the rocket (no paddles)
-    g = 9.80665;                    //acceleration of gravity (m/s^2)
-}
+//         if (parameterName == "rocketDryMass") parser >> m_r;
+//         else if (parameterName == "rocketDragCoefficient") parser >> Cd_r;
+//         else if (parameterName == "rocketDiameter") parser >> D_r;
+//         else if (parameterName == "paddleLength") parser >> L_p;
+//         else if (parameterName == "paddleWidth") parser >> W_p;
+//         else if (parameterName == "launchPadHeight") parser >> launchHeight;
+//     } 
+//     A_r = M_PI*(D_r/2)*(D_r/2);     //calculate frontal area of just the rocket (no paddles)
+//     g = 9.80665;                    //acceleration of gravity (m/s^2)
+// }
 
 
 // Writes the results of the simulation to a file whose directory is the fileSpec argument. 

@@ -23,7 +23,7 @@ Controller::Controller(double kp, double ki, double kd, double h0, double V0)
 void Controller::loadData()
 {
     string dataFile = selectFile();
-
+    
     // Open input file stream
     ifstream reader(dataFile);
     if(!reader.is_open())

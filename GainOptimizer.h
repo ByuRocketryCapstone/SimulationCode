@@ -36,7 +36,6 @@ class GainOptimizer
     double objectiveFunction(Solution soln);
     Solution takeStep(Solution currSoln, double currTemp);
     void enforceBounds(Solution& candidateSoln);
-    double randn();
     double height_pertibation = 0;
     double vel_pertibation = 0;
 

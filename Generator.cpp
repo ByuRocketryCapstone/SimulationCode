@@ -6,8 +6,8 @@ Generator::Generator()
     maxAngle = 70 * (M_PI/180);     //radians
 
     // starting height and velocity values at MECO obtained from OpenRocket
-    seedVelocity = 284.57;        //m/s
-    seedHeight = 762.9144;          //m
+    seedVelocity = mecoVelocity;        //m/s
+    seedHeight = mecoHeight;          //m
 }
 
 
@@ -36,8 +36,8 @@ void Generator::generateTrajectories()
     {
         for(int j = 0; j < initialVelocities.size(); j++)
         {
-            cout << simNum << endl;
             simNum++;
+            cout << "Sim " << simNum << endl;
             outputFilename = REF_FILE_BASE + to_string(simNum) + ".txt";
 
             Simulator* currSim;
