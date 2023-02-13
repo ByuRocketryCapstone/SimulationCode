@@ -3,7 +3,7 @@
 
 /*
 File: GainOptimizer.h
-Author: Gerritt Graham
+Author: Gerritt Graham and Jacob Hansen
 Description: Class implementing a simluated annealing optimizer to automatically tune the gains of the PID
 controller. The optimizer uses a linear annealing schedule and the Metropolis acceptance criteria. The 
 objective function runs a simulation using the Simulator class, and compares the final trajectory to the

@@ -8,10 +8,10 @@ GainOptimizer::GainOptimizer()
 {
     //initialize temperature and iterations
     initialTemp = 200;
-    numIterations = 400;
+    numIterations = 250;
 
     //set bounds
-    bounds = {0, 20, 0, 5, 0, 3};
+    bounds = {0, 30, 0, 5, 0, 3};
 
     //seed random number generator with current time
     srand(time(0));

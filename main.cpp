@@ -32,8 +32,8 @@ int main()
 
     if (operationMode == "Simulate")
     {
-        Simulator currSim(openRocketHeight+45, openRocketVelocity-30, 0);
-        Controller controller(16.9424,2.98139,0.084468, openRocketHeight+45, openRocketVelocity-30);
+        Simulator currSim(openRocketHeight, openRocketVelocity, 0);
+        Controller controller(20,2.24675,0.0493983, openRocketHeight, openRocketVelocity);
 
         currSim.simulate(controller);
         
