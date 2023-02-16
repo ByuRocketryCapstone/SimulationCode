@@ -105,7 +105,7 @@ double GainOptimizer::objectiveFunction(Solution soln)
 
     currSim.simulate(controller);
 
-    result = currSim.calcError(1);
+    result = currSim.calcError(1); //1 indicates which ref trajectory needs to be fixed
      
     return result;
             
