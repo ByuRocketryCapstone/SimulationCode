@@ -24,7 +24,6 @@ class Generator
     public:
     Generator();
     void generateTrajectories();
-    //double simulate(Simulator* currSim, double deploymentAngle);
 
     private:
     vector<Simulator*> simulations;

@@ -4,26 +4,18 @@
 // and sets a constant step size to initialize the simulation. Also reads in characteristics of the rocket
 // from the parameters file. The default parameter alpha0 represents a fixed paddle angle for use by the 
 // Generator class to override the controller and specify a single paddle angle for the simulation.
-Simulator::Simulator(double h0, double V0, double theta0, double alpha0)
+// The initial velocity must be in the vertical direction only (inclination angle must be accounted for).
+Simulator::Simulator(double h0, double V0, double alpha0)
 {
-    ifstream reader(PARAMETERS_FILE);
-    if(!reader.is_open()) 
-    {
-        cout << "Parameters file not opened in Simulator::Simulator()." << endl;
-        return;
-    }
-
-    //populateParameters(reader);
     h = h0;     //m
     V = V0;     //m/s
-    theta = theta0; //radians
 
     heightStep = 0.05;  //m
-    currTime = 0;
+    currTime = t_c;
     fixedPaddleAngle = alpha0;
 
     // record data for the rocket at MECO
-    timeVals.push_back(0);
+    timeVals.push_back(currTime);
     heightVals.push_back(h);
     velocityVals.push_back(V);
     accelVals.push_back(-g);
@@ -39,16 +31,18 @@ Simulator::~Simulator()
 
 void Simulator::simulate(Controller& controller)
 {
-    double currH, currV, currA, currTime, lastTime;
+    double currH, currV, currA, lastTime;
     double alpha, cmd_alpha;
-    alpha = 0, cmd_alpha = 0, lastTime = 0, currTime = 0;
+    alpha = 0, cmd_alpha = 0, lastTime = currTime;
     do
     {
         calcNextStep(currH, currV, currA, currTime, alpha);
+        
         if (fixedPaddleAngle == -1) cmd_alpha = controller.calcAngle(currTime, currH, currV, currA);
         else cmd_alpha = fixedPaddleAngle;
-
-        //enforce actual paddle deployment limitations
+        
+        // enforce actual paddle deployment limitations
+        // using a constant rate defined by PADDLE_DEPLOYMENT_RATE to approximate actual non-linear rate
         if (cmd_alpha > alpha){
             //If the cmd angle is larger than the current angle ie the paddles need to open
             alpha += PADDLE_DEPLOYMENT_RATE * (currTime - lastTime);
@@ -58,8 +52,9 @@ void Simulator::simulate(Controller& controller)
             alpha += -(PADDLE_DEPLOYMENT_RATE * (currTime - lastTime));
         }
         lastTime = currTime;
-        //Saturation Limits for extra robustness cause reasons
-        if (alpha >= 70 * (M_PI/180)) alpha = 70 * (M_PI/180);
+
+        //Ensure that the commanded angle doesn't exceed the maximum possible angle or 0
+        if (alpha >= MAX_PADDLE_ANGLE) alpha = MAX_PADDLE_ANGLE;
         else if (alpha <= 0) alpha = 0;
         else alpha = alpha;
         
@@ -68,6 +63,7 @@ void Simulator::simulate(Controller& controller)
 
 
 // Performs an energy balance for one height step. Output values are pass-by-reference parameters.
+// Velocity and acceleration here are already corrected for inclination angle
 void Simulator::calcNextStep(double& hOut, double& VOut, double& aOut, double& tOut, double alpha)
 {   
     double totalEnergy = m_r*g*h + 0.5*m_r*V*V; //calc total energy at current step
@@ -119,34 +115,11 @@ double Simulator::getAirDensity(double h)
 // deployment angle. alpha is the paddle deployment angle in radians
 double Simulator::getPaddleDrag(double alpha)
 {
-    double Cd_p = alpha * 0.8431;  
+    double Cd_p = alpha * 0.8431;
     double A_p = W_p * L_p * sin(alpha);
 
     return Cd_p * A_p;
 }
-
-
-// Reads in parameters of the rocket from the parameters file. Additional parameters can be
-// added by adding to the if/else block.
-// void Simulator::populateParameters(ifstream& reader)
-// {
-//     string line;
-//     while(getline(reader, line))
-//     {
-//         stringstream parser(line);
-//         string parameterName;
-//         parser >> parameterName;
-
-//         if (parameterName == "rocketDryMass") parser >> m_r;
-//         else if (parameterName == "rocketDragCoefficient") parser >> Cd_r;
-//         else if (parameterName == "rocketDiameter") parser >> D_r;
-//         else if (parameterName == "paddleLength") parser >> L_p;
-//         else if (parameterName == "paddleWidth") parser >> W_p;
-//         else if (parameterName == "launchPadHeight") parser >> launchHeight;
-//     } 
-//     A_r = M_PI*(D_r/2)*(D_r/2);     //calculate frontal area of just the rocket (no paddles)
-//     g = 9.80665;                    //acceleration of gravity (m/s^2)
-// }
 
 
 // Writes the results of the simulation to a file whose directory is the fileSpec argument. 
@@ -194,7 +167,7 @@ void Simulator::writeRecord(string fileSpec)
     spacedAlpha.push_back(alphaVals.at(0));
 
     double lastTime = timeVals.at(0);
-    double timeInterval = 0.1;  //s
+    double timeInterval = 0.01;  //s
     for(int i = 0; i < timeVals.size(); i++)
     {
         if(timeVals.at(i) > lastTime+timeInterval)
@@ -215,8 +188,8 @@ void Simulator::writeRecord(string fileSpec)
     writer << "Time (s), Height (m), Velocity (m/s), Acceleration (m/s^2), Deployment Angle (degrees)" << endl;
     for(int i = 0; i < spacedTime.size(); i++)
     {
-        writer << spacedTime.at(i) << ", " << spacedHeight.at(i) << ", " << spacedVelocity.at(i) << ", "
-          << spacedAccel.at(i) << ", " << spacedAlpha.at(i) * (180/M_PI) << endl;
+        writer << spacedTime.at(i) << " " << spacedHeight.at(i) << " " << spacedVelocity.at(i) << " "
+          << spacedAccel.at(i) << " " << spacedAlpha.at(i) * (180/M_PI) << endl;
     }
 }
 
@@ -238,11 +211,13 @@ double Simulator::calcError(int refFileNum)
     string line;
     for(int i = 0; i < REF_HEADER_SIZE; i++) getline(reader, line);  //skip header
 
-    while(getline(reader, line))
+        while(getline(reader, line))
     {
-        vector<string> dataVals = split(line, ',');     //split line into individual values
-        refTimes.push_back(stod(dataVals.at(0)));
-        refHeights.push_back(stod(dataVals.at(1)));
+        double t1, h1, V1, a1;
+        stringstream parser(line);
+        parser >> t1 >> h1 >> V1 >> a1;
+        refTimes.push_back(t1);
+        refHeights.push_back(h1);
     }
 
     double lastIndex = 0;
@@ -264,6 +239,7 @@ double Simulator::calcError(int refFileNum)
 }
 
 
+// Splits a string of values according to the delimiter character
 std::vector<std::string> Simulator::split(const std::string& text, char delimiter)
 {                                                                                                                                                                                             
    std::vector<std::string> splits;                                                                                                                                                           
@@ -274,4 +250,29 @@ std::vector<std::string> Simulator::split(const std::string& text, char delimite
       splits.push_back(split);
    }
    return splits;
+}
+
+
+// Resets the simulation to the beginning so it can be run again
+void Simulator::reset(double h0, double V0, double alpha0)
+{
+    h = h0;     //m
+    V = V0;     //m/s
+
+    heightStep = 0.05;  //m
+    currTime = t_c;
+    fixedPaddleAngle = alpha0;
+
+    timeVals.clear();
+    heightVals.clear();
+    velocityVals.clear();
+    accelVals.clear();
+    alphaVals.clear();
+
+    // record data for the rocket at MECO
+    timeVals.push_back(currTime);
+    heightVals.push_back(h);
+    velocityVals.push_back(V);
+    accelVals.push_back(-g);
+    alphaVals.push_back(0);
 }

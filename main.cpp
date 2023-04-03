@@ -23,16 +23,16 @@ using namespace std;
 int main()
 {
 
-    //string operationMode = "Simulate";
+    string operationMode = "Simulate";
     //string operationMode = "Generate";
-    string operationMode = "Optimize";
+    //string operationMode = "Optimize";
     
 
     if (operationMode == "Simulate")
     {
-        Simulator currSim(mecoHeight+45, mecoVelocity-30, 0);
-        Controller controller(16.9424,2.98139,0.084468, mecoHeight+45, mecoVelocity-30);
-
+        Simulator currSim(mecoHeight+5, mecoVelocity-6);
+        Controller controller(13.2434,1.64725,0.092556, mecoHeight+5, mecoVelocity-6);
+        
         currSim.simulate(controller);
         
         currSim.writeRecord("SimRecords/simulation1.txt");
@@ -48,7 +48,7 @@ int main()
     {
         GainOptimizer optimizer;
         //optimizer.evaluate();
-        optimizer.findPertibationSolution();
+        optimizer.findPerturbationSolution();
     }
 
     else

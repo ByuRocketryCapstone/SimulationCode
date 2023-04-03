@@ -24,20 +24,19 @@ class GainOptimizer
     public:
     GainOptimizer();
     Solution evaluate();
-    void findPertibationSolution();
-    // another evaulate function that evaulates 5 times 5 sets of gains, then try all five at different pertubations
+    void findPerturbationSolution();
+
     private:
     int numIterations;
     double initialTemp;
     Solution bestSoln, currSoln;
     vector<double> bounds;
-    // double kp, ki, kd;
     
     double objectiveFunction(Solution soln);
     Solution takeStep(Solution currSoln, double currTemp);
     void enforceBounds(Solution& candidateSoln);
-    double height_pertibation = 0;
-    double vel_pertibation = 0;
+    double height_perturbation = 0;
+    double vel_perturbation = 0;
 
 
 };

@@ -1,0 +1,13 @@
+679.88 304.08 refData1.txt
+679.88 324.08 refData2.txt
+679.88 284.08 refData3.txt
+719.88 304.08 refData8.txt
+719.88 324.08 refData9.txt
+719.88 284.08 refData10.txt
+639.88 304.08 refData15.txt
+639.88 324.08 refData16.txt
+759.88 304.08 refData22.txt
+759.88 284.08 refData24.txt
+599.88 304.08 refData29.txt
+599.88 324.08 refData30.txt
+599.88 344.08 refData32.txt

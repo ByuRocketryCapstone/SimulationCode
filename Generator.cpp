@@ -2,8 +2,8 @@
 
 Generator::Generator()
 {
-    tolerance = 0.0005;      //0.01 percent
-    maxAngle = 70 * (M_PI/180);     //radians
+    tolerance = 0.001;      //0.1 percent
+    maxAngle = MAX_PADDLE_ANGLE;
 
     // starting height and velocity values at MECO obtained from OpenRocket
     seedVelocity = mecoVelocity;        //m/s
@@ -22,8 +22,7 @@ void Generator::generateTrajectories()
     string outputFilename = "";
     int simNum = 0;
 
-    string indexFileName = "SimRecords/References/index.txt";
-    ofstream indexWriter(indexFileName);
+    ofstream indexWriter(REF_DIRECTORY + INDEX_FILE_NAME);
     if (!indexWriter.is_open())
     {
         cout << "Index file not opened in Generator::generateTrajectories()" << endl;
@@ -40,7 +39,7 @@ void Generator::generateTrajectories()
             cout << "Sim " << simNum << endl;
             outputFilename = REF_FILE_BASE + to_string(simNum) + ".txt";
 
-            Simulator* currSim;
+            Simulator currSim(0,0,0);
             double finalApogee = 0;     //m
             double deploymentAngle = 10 * (M_PI/180);   //radians
             double angleStep = 0 * (M_PI/180);   //radians
@@ -51,9 +50,9 @@ void Generator::generateTrajectories()
             {
                 numRuns++;
                 keepLooping = false;
-                currSim = new Simulator(initialHeights.at(i), initialVelocities.at(j), 0, deploymentAngle);
-                currSim->simulate(dummyController);
-                finalApogee = currSim->getApogee();
+                currSim.reset(initialHeights.at(i), initialVelocities.at(j), deploymentAngle);
+                currSim.simulate(dummyController);
+                finalApogee = currSim.getApogee();
                 double previousAngle = deploymentAngle;
                 adjustAngle(deploymentAngle, angleStep, finalApogee);
 
@@ -67,11 +66,9 @@ void Generator::generateTrajectories()
                 // if the angle changed, loop again
                 if (abs(previousAngle - deploymentAngle) > 0.0001) keepLooping = true;
             }
-            //cout << "random garbage" << endl;
-            if (abs(finalApogee - TARGET_APOGEE) < TARGET_APOGEE*0.001)
+            if (abs(finalApogee - TARGET_APOGEE) < TARGET_APOGEE*tolerance)
             {
-                simulations.push_back(currSim);
-                currSim->writeRecord(REF_DIRECTORY + outputFilename);
+                currSim.writeRecord(REF_DIRECTORY + outputFilename);
                 indexWriter << initialHeights.at(i) << " " << initialVelocities.at(j) << " " 
                 << REF_FILE_BASE + to_string(simNum) + ".txt";
                 if (simNum < initialHeights.size()*initialVelocities.size()) indexWriter << endl;
@@ -81,20 +78,6 @@ void Generator::generateTrajectories()
 }
 
 
-// Exectutes the simulation of the currSim argument at a specified paddle deployment angle
-// in radians
-// double Generator::simulate(Simulator* currSim, double deploymentAngle)
-// {
-//     double hOut, VOut, aOut, tOut;  
-//     currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
-//     while (VOut > 0.1)
-//     {
-//         currSim->calcNextStep(hOut, VOut, aOut, tOut, deploymentAngle);
-//     }
-//     return currSim->getApogee();
-// }
-
-
 // Generate combinations of MECO heights and velocities using the given seed values
 void Generator::populateInitialConditions(double seedVel, double seedHeight, 
     vector<double>& velocities, vector<double>& heights)
@@ -102,10 +85,10 @@ void Generator::populateInitialConditions(double seedVel, double seedHeight,
     heights.push_back(seedHeight);
     velocities.push_back(seedVel);
 
-    const int NUM_HEIGHT_STEPS = 1;
-    const int NUM_VEL_STEPS = 2;
-    const int HEIGHT_STEP = 20;     //m
-    const int VELOCITY_STEP = 10;   //m/s
+    const int NUM_HEIGHT_STEPS = 2;
+    const int NUM_VEL_STEPS = 3;
+    const int HEIGHT_STEP = 40;     //m
+    const int VELOCITY_STEP = 20;   //m/s
 
     for(int i = 1; i <= NUM_HEIGHT_STEPS; i++)
     {
@@ -128,7 +111,7 @@ void Generator::adjustAngle(double& deploymentAngle, double& angleStep, double f
     if (abs(finalApogee - TARGET_APOGEE) > TARGET_APOGEE*0.5) angleStep = 3 * (M_PI/180);
     else if (abs(finalApogee - TARGET_APOGEE) > TARGET_APOGEE*0.25) angleStep = 1 * (M_PI/180);
     else if (abs(finalApogee - TARGET_APOGEE) > TARGET_APOGEE*0.1) angleStep = 0.5 * (M_PI/180);
-    else if (abs(finalApogee - TARGET_APOGEE) > TARGET_APOGEE*0.03) angleStep = 0.1 * (M_PI/180);
+    else /*if (abs(finalApogee - TARGET_APOGEE) > TARGET_APOGEE*0.03)*/ angleStep = 0.05 * (M_PI/180);
 
     // adjust deployment angle up if the rocket overshot the target, else adjust down
     if (finalApogee > TARGET_APOGEE*(1+tolerance)) deploymentAngle += angleStep;

@@ -15,7 +15,6 @@ Controller::Controller(double kp, double ki, double kd, double h0, double V0)
     cmd_alpha = 0;
 
     loadData();  
-    selectedTrajectoryNum = 1;  //FIXME: add functionality to choose between trajectories 
 }
 
 
@@ -37,17 +36,14 @@ void Controller::loadData()
     // read each line of the data file
     while(getline(reader, line))
     {
-        vector<string> dataVals = split(line, ',');     //split line into individual values
-        refTimes.push_back(stod(dataVals.at(0)));
-        refHeights.push_back(stod(dataVals.at(1)));
-        refVelocities.push_back(stod(dataVals.at(2)));
-        refAccels.push_back(stod(dataVals.at(3)));
+        double t1, h1, V1, a1;
+        stringstream parser(line);
+        parser >> t1 >> h1 >> V1 >> a1;
+        refTimes.push_back(t1);
+        refHeights.push_back(h1);
+        refVelocities.push_back(V1);
+        refAccels.push_back(a1);
     }
-
-    // cout << refTimes.size() << endl;
-    // cout << refHeights.size() << endl;
-    // cout << refVelocities.size() << endl;
-    // cout << refAccels.size() << endl;
 }
 
 
@@ -83,6 +79,9 @@ string Controller::selectFile()
             }
     }
 
+    string fileNumber = selectedFileName.substr(REF_FILE_BASE.length(), (selectedFileName.find(".") - REF_FILE_BASE.length()));
+    selectedTrajectoryNum = stoi(fileNumber);
+    
     return REF_DIRECTORY + selectedFileName;
 }
 
@@ -91,25 +90,21 @@ string Controller::selectFile()
 // current values of the rocket in real time, not the optimal reference values
 double Controller::calcAngle(double currTime, double currHeight, double currVelocity, double currAccel)
 { 
-    ref_alpha = getCurrentAngle();
+    ref_alpha = 0;
 
     double error_h = currHeight - getRefHeight(currTime);
-    //cout <<"t: " << currTime << ", h: " << error_h << endl;
+    
     double error_v = currVelocity - getRefVelocity(currTime);
     double error_a = currAccel - getRefAccel(currTime);
-
+    
     //Actual PID Magic
-
-    //cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd);
-    //cout << cmd_alpha << endl;
-
     //Trigger band antiwindup scheme (trying to improve robustnesss)
     if (abs(error_v) > getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) - (error_a * kd);
     else if (abs(error_v) <= getRefVelocity(currTime) * .15) cmd_alpha = ref_alpha + (error_v * kp) + (error_h * ki) - (error_a * kd); 
 
 
     //This is our saturation limits so we dont break things cause that would cause mucho problems
-    if (cmd_alpha >= 70 * (M_PI/180)) cmd_alpha = 70 * (M_PI/180);
+    if (cmd_alpha >= MAX_PADDLE_ANGLE) cmd_alpha = MAX_PADDLE_ANGLE;
     else if (cmd_alpha <= 0) cmd_alpha = 0;
     else cmd_alpha = cmd_alpha;
 
@@ -132,13 +127,6 @@ std::vector<std::string> Controller::split(const std::string& text, char delimit
 }
 
 
-// Ping the hardware to determine the actual angle that the paddles are currently deployed to
-double Controller::getCurrentAngle()
-{
-    return 0.0; //FIXME: Implement this
-}
-
-
 // Find the closest reference time index to the specified time
 int Controller::findTimeIndex(double t)
 {
@@ -155,6 +143,8 @@ int Controller::findTimeIndex(double t)
 double Controller::getRefHeight(double t)
 {
     unsigned int upperBound = findTimeIndex(t);
+    if (upperBound == 0) return refHeights.at(0);
+
     unsigned int lowerBound = upperBound - 1;
     double refHeight = refHeights.at(lowerBound) + 
         (t-refTimes.at(lowerBound)) * (refHeights.at(upperBound)-refHeights.at(lowerBound)) /
@@ -168,6 +158,8 @@ double Controller::getRefHeight(double t)
 double Controller::getRefVelocity(double t)
 {
     unsigned int upperBound = findTimeIndex(t);
+    if (upperBound == 0) return refVelocities.at(0);
+
     unsigned int lowerBound = upperBound - 1;
     double refVelocity = refVelocities.at(lowerBound) + 
         (t-refTimes.at(lowerBound)) * (refVelocities.at(upperBound)-refVelocities.at(lowerBound)) /
@@ -181,6 +173,8 @@ double Controller::getRefVelocity(double t)
 double Controller::getRefAccel(double t)
 {
     unsigned int upperBound = findTimeIndex(t);
+    if (upperBound == 0) return refAccels.at(0);
+
     unsigned int lowerBound = upperBound - 1;
     double refAccel = refAccels.at(lowerBound) + 
         (t-refTimes.at(lowerBound)) * (refAccels.at(upperBound)-refAccels.at(lowerBound)) /

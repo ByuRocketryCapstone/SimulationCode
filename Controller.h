@@ -41,7 +41,6 @@ class Controller
     void loadData();
     string selectFile();
     vector<string> split(const string& s, char delimiter);
-    double getCurrentAngle();
 
 };
 

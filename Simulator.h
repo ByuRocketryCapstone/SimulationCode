@@ -27,19 +27,19 @@ using namespace std;
 class Simulator
 {
     public:
-    Simulator(double h0, double V0, double theta, double alpha = -1);
+    Simulator(double h0, double V0, double alpha = -1);
     ~Simulator();
     void simulate(Controller& controller);
     double getApogee();
     void writeRecord(string fileSpec = "");
     double calcError(int refFileNum);
+    void reset(double h0, double V0, double alpha = -1);
 
     private:
     const string PARAMETERS_FILE = "parameters.txt";
     const string RECORDS_DIRECTORY = "SimRecords/";
 
-    double h, V, a, theta, currTime;
-    double H_P, V_P;
+    double h, V, a, currTime;
     double heightStep;
     double fixedPaddleAngle;
     
