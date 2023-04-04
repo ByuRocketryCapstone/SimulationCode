@@ -112,7 +112,8 @@ double Simulator::getAirDensity(double h)
 
 
 // Calculates frontal area and coefficient of drag of the paddles as a function of the 
-// deployment angle. alpha is the paddle deployment angle in radians
+// deployment angle. alpha is the paddle deployment angle in radians.
+// The 0.8431 is the slope of the linear fit of the wind tunnel drag data from GEN-111
 double Simulator::getPaddleDrag(double alpha)
 {
     double Cd_p = alpha * 0.8431;
@@ -167,7 +168,7 @@ void Simulator::writeRecord(string fileSpec)
     spacedAlpha.push_back(alphaVals.at(0));
 
     double lastTime = timeVals.at(0);
-    double timeInterval = 0.01;  //s
+    double timeInterval = 0.1;  //s
     for(int i = 0; i < timeVals.size(); i++)
     {
         if(timeVals.at(i) > lastTime+timeInterval)
